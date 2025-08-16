@@ -1,0 +1,297 @@
+{% extends "admin/base.html" %}
+
+{% block title %}API Keys Management - Admin Panel{% endblock %}
+{% block header %}API Keys Management{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Create API Key Section -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Create New API Key
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/admin/api-keys/create">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="owner_name" class="form-label">Owner Name</label>
+                                <input type="text" class="form-control" id="owner_name" name="owner_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="owner_email" class="form-label">Owner Email</label>
+                                <input type="email" class="form-control" id="owner_email" name="owner_email" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="plan" class="form-label">Plan</label>
+                                <select class="form-select" id="plan" name="plan" required>
+                                    <option value="free">Free (1,000 requests/month)</option>
+                                    <option value="premium">Premium (10,000 requests/month)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-plus me-2"></i>
+                                Create API Key
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- API Keys Table -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-key me-2"></i>
+                    API Keys Database ({{ api_keys|length }} keys)
+                </h6>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-warning" onclick="exportAPIKeys()">
+                        <i class="bi bi-download me-1"></i>
+                        Export
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" onclick="refreshUsageStats()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>
+                        Refresh Stats
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="apiKeysTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Owner</th>
+                                <th>Email</th>
+                                <th>API Key</th>
+                                <th>Plan</th>
+                                <th>Usage</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for api_key in api_keys %}
+                            <tr>
+                                <td>{{ api_key.id }}</td>
+                                <td>{{ api_key.owner.name }}</td>
+                                <td>{{ api_key.owner.email }}</td>
+                                <td>
+                                    <code class="api-key-cell" onclick="copyToClipboard('{{ api_key.key }}')">
+                                        {{ api_key.key[:8] }}...{{ api_key.key[-4:] }}
+                                    </code>
+                                    <button class="btn btn-sm btn-outline-secondary ms-1" onclick="copyToClipboard('{{ api_key.key }}')">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if api_key.plan == 'premium' %}warning{% else %}secondary{% endif %}">
+                                        {{ api_key.plan.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold">{{ api_key.usage_count }} / {{ api_key.monthly_limit }}</span>
+                                        <div class="progress" style="height: 4px;">
+                                            <div class="progress-bar {% if api_key.usage_count / api_key.monthly_limit > 0.9 %}bg-danger{% elif api_key.usage_count / api_key.monthly_limit > 0.7 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                 style="width: {{ (api_key.usage_count / api_key.monthly_limit * 100) }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{ ((api_key.usage_count / api_key.monthly_limit) * 100)|round(1) }}%</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if api_key.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Suspended</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>{{ api_key.created_at.strftime('%Y-%m-%d %H:%M') if api_key.created_at else 'N/A' }}</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <form method="post" action="/admin/api-keys/{{ api_key.id }}/toggle" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-outline-{% if api_key.is_active %}warning{% else %}success{% endif %}" 
+                                                    title="{% if api_key.is_active %}Suspend{% else %}Activate{% endif %}">
+                                                <i class="bi bi-{% if api_key.is_active %}pause{% else %}play{% endif %}"></i>
+                                            </button>
+                                        </form>
+                                        <form method="post" action="/admin/api-keys/{{ api_key.id }}/reset" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-outline-info" title="Reset Usage">
+                                                <i class="bi bi-arrow-counterclockwise"></i>
+                                            </button>
+                                        </form>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewUsageStats({{ api_key.id }})" title="View Stats">
+                                            <i class="bi bi-bar-chart"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Usage Statistics Modal -->
+<div class="modal fade" id="usageStatsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Usage Statistics</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="usageStatsBody">
+                <!-- Usage stats will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        // Show a temporary tooltip or notification
+        const tooltip = document.createElement('div');
+        tooltip.textContent = 'API Key copied!';
+        tooltip.className = 'alert alert-success position-fixed';
+        tooltip.style.top = '20px';
+        tooltip.style.right = '20px';
+        tooltip.style.zIndex = '9999';
+        document.body.appendChild(tooltip);
+        
+        setTimeout(() => {
+            document.body.removeChild(tooltip);
+        }, 2000);
+    }).catch(() => {
+        alert('Failed to copy API key to clipboard');
+    });
+}
+
+function viewUsageStats(apiKeyId) {
+    document.getElementById('usageStatsBody').innerHTML = '<p>Loading usage statistics...</p>';
+    new bootstrap.Modal(document.getElementById('usageStatsModal')).show();
+    
+    // In a real implementation, you'd make an AJAX call to get detailed stats
+    setTimeout(() => {
+        document.getElementById('usageStatsBody').innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Usage Overview</h6>
+                    <p><strong>API Key ID:</strong> ${apiKeyId}</p>
+                    <p>Detailed usage statistics would be loaded here via API call.</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Endpoint Breakdown</h6>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>/movies</span>
+                            <span class="badge bg-primary">45</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>/search</span>
+                            <span class="badge bg-primary">23</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>/movies/{id}</span>
+                            <span class="badge bg-primary">12</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        `;
+    }, 500);
+}
+
+function exportAPIKeys() {
+    const table = document.getElementById('apiKeysTable');
+    let csv = [];
+    
+    // Get headers
+    const headers = ['ID', 'Owner', 'Email', 'API Key', 'Plan', 'Usage Count', 'Monthly Limit', 'Status', 'Created'];
+    csv.push(headers.join(','));
+    
+    // Get data
+    table.querySelectorAll('tbody tr').forEach(tr => {
+        const cells = tr.querySelectorAll('td');
+        const row = [
+            cells[0].textContent.trim(), // ID
+            cells[1].textContent.trim(), // Owner
+            cells[2].textContent.trim(), // Email
+            cells[3].querySelector('code').onclick.toString().match(/'([^']+)'/)[1], // Full API key
+            cells[4].textContent.trim(), // Plan
+            cells[5].querySelector('.fw-bold').textContent.split(' / ')[0], // Usage count
+            cells[5].querySelector('.fw-bold').textContent.split(' / ')[1], // Monthly limit
+            cells[6].textContent.trim(), // Status
+            cells[7].textContent.trim()  // Created
+        ].map(cell => `"${cell.replace(/"/g, '""')}"`);
+        csv.push(row.join(','));
+    });
+    
+    // Download
+    const csvString = csv.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'api_keys_export.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+function refreshUsageStats() {
+    // Implement refresh functionality
+    location.reload();
+}
+
+// Add search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const cardHeader = document.querySelector('.card-header h6');
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Search API keys...';
+    searchInput.className = 'form-control form-control-sm me-2';
+    searchInput.style.width = '200px';
+    
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'd-flex align-items-center';
+    searchContainer.innerHTML = '<i class="bi bi-search me-2"></i>';
+    searchContainer.appendChild(searchInput);
+    
+    cardHeader.parentNode.insertBefore(searchContainer, cardHeader.parentNode.children[1]);
+    
+    // Search functionality
+    searchInput.addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#apiKeysTable tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    });
+});
+</script>
+{% endblock %}

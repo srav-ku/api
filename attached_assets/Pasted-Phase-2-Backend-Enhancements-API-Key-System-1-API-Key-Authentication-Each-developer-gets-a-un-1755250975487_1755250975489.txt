@@ -1,0 +1,103 @@
+Phase 2 — Backend Enhancements & API Key System
+1️⃣ API Key Authentication
+
+Each developer gets a unique API key (UUID v4)
+
+All requests require X-API-KEY header
+
+Validate key against DB table api_keys
+
+Default free plan: 1000 requests/month
+
+Track usage in usage_logs table with:
+
+api_key_id, endpoint, timestamp
+
+If limit exceeded → return HTTP 429 Too Many Requests
+
+Admin endpoint to reset usage for testing
+
+2️⃣ Database Integration
+
+Replace in-memory CSV storage with PostgreSQL
+
+Tables:
+
+movies → same columns as CSV
+
+api_keys → id, owner_name, key, plan, usage_count, created_at
+
+usage_logs → id, api_key_id, endpoint, timestamp
+
+Load CSV to DB at server start and on-demand reload
+
+3️⃣ Developer Signup & API Key
+
+Developer registers → verify real email (Gmail, Yahoo, Outlook)
+
+After verification → automatically generate API key
+
+Store API key and plan (free) in DB
+
+Developer dashboard shows:
+
+API key
+
+Usage count vs plan limit
+
+Example /movies and /search requests
+
+API playground for testing
+
+4️⃣ CSV Management
+
+Admin uploads/updates CSV → reload DB automatically
+
+Handle duplicates gracefully (same title + year)
+
+Support multiple genres/actors (| or comma separation)
+
+Posters stored as URLs, not files
+
+5️⃣ Rate Limits & Plans
+
+Free: 1000 requests/month
+
+Future premium plans → higher limits
+
+Track usage per API key
+
+Admin can reset, upgrade, or suspend keys
+
+6️⃣ Security
+
+Passwords hashed (bcrypt)
+
+API keys unique and random
+
+Protect admin endpoints with session/JWT
+
+Validate CSV before inserting into DB
+
+Use PostgreSQL indexing on title, year, genre for fast search
+
+7️⃣ Project Structure (Backend + API Key Phase)
+/api        → FastAPI endpoints
+/data       → CSV storage
+/db         → PostgreSQL models and migrations
+/logs       → API usage logs
+/static     → CSS/JS/images if needed later
+
+✅ Next Steps for You
+
+Integrate PostgreSQL → move CSV data to DB
+
+Create api_keys table → manually add a few test keys
+
+Add middleware to validate X-API-KEY on requests
+
+Track usage in usage_logs
+
+Optional admin endpoint → reset usage for test keys
+
+Keep Phase 1 endpoints fully functional, now working with DB instead of CSV

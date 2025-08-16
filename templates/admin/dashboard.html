@@ -1,0 +1,190 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard - Admin Panel{% endblock %}
+{% block header %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Users
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_users }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Total Movies
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_movies }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-film text-success" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            API Keys
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_api_keys }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-key text-info" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Active Keys
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.active_api_keys }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-check-circle text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+    <!-- Top Endpoints Chart -->
+    <div class="col-xl-6 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-bar-chart me-2"></i>
+                    Top API Endpoints
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if top_endpoints %}
+                    {% for endpoint, count in top_endpoints %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-sm">{{ endpoint }}</span>
+                            <span class="text-sm font-weight-bold">{{ count }} requests</span>
+                        </div>
+                        <div class="progress progress-sm">
+                            <div class="progress-bar bg-primary" role="progressbar" 
+                                 style="width: {{ (count / top_endpoints[0][1] * 100) }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No API usage data available yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-xl-6 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-clock me-2"></i>
+                    Recent API Activity
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if recent_logs %}
+                    <div class="list-group">
+                        {% for log in recent_logs %}
+                        <div class="list-group-item list-group-item-action py-2">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ log.endpoint }}</h6>
+                                <small>{{ log.timestamp.strftime('%H:%M:%S') }}</small>
+                            </div>
+                            <p class="mb-1">
+                                <small class="text-muted">
+                                    {{ log.api_key.owner.name }} - {{ log.api_key.owner.email }}
+                                </small>
+                            </p>
+                            <small class="text-muted">{{ log.ip_address }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recent activity.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-lightning me-2"></i>
+                    Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <a href="/admin/movies" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-film d-block mb-2" style="font-size: 2rem;"></i>
+                            Manage Movies
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="/admin/api-keys" class="btn btn-outline-success w-100">
+                            <i class="bi bi-key d-block mb-2" style="font-size: 2rem;"></i>
+                            Manage API Keys
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="/docs" target="_blank" class="btn btn-outline-info w-100">
+                            <i class="bi bi-book d-block mb-2" style="font-size: 2rem;"></i>
+                            API Documentation
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="/dev/login" class="btn btn-outline-warning w-100">
+                            <i class="bi bi-person-gear d-block mb-2" style="font-size: 2rem;"></i>
+                            Developer Portal
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

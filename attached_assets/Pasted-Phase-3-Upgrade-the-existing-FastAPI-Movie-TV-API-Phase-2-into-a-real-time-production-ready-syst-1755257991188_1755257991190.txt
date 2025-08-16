@@ -1,0 +1,189 @@
+Phase 3
+
+Upgrade the existing FastAPI Movie/TV API (Phase 2) into a real-time, production-ready system with PostgreSQL, frontend UI, admin panel, developer portal, email verification, and scalable endpoints. Ensure performance, security, and maintainability.
+
+Part 1 — Backend API Upgrade
+
+Language & Framework: Python + FastAPI
+
+Database: PostgreSQL (Railway free tier)
+
+Data Source:
+
+Load CSV initially into movies table.
+
+All data should now be fully in DB (no dummy/static JSON).
+
+Posters stored as URLs only.
+
+API Endpoints:
+
+GET /movies → paginated list
+
+GET /search → search by title, genre, year, or combinations
+
+GET /movies/{id} → movie details
+
+API Key Authentication:
+
+Every request requires X-API-KEY
+
+Check usage limit based on plan
+
+Track per-endpoint usage in usage_logs
+
+Return 429 if limit exceeded
+
+Automatic DB Reload:
+
+Admin CSV upload should validate and update DB in real-time, avoiding duplicates
+
+Part 2 — Admin Portal UI
+
+Authentication:
+
+Admin login (username/password hashed with bcrypt)
+
+Protect all admin routes with session or JWT
+
+Features:
+
+Upload or replace CSV → updates PostgreSQL movies table in real-time
+
+View all API keys, usage counts, and owners
+
+Create, suspend, or delete API keys
+
+Reset API usage counts
+
+View API request logs (timestamp, endpoint, API key)
+
+UI:
+
+Responsive, professional dashboard using Bootstrap + HTML/JS
+
+Allow filter/search/sort in tables (API keys, logs, movies)
+
+Part 3 — Developer Portal UI
+
+Authentication:
+
+Signup/login system
+
+Email verification required before API key generation
+
+Only Gmail, Yahoo, Outlook allowed
+
+Reject temporary/disposable emails
+
+Verification link sent with secure token stored in DB (email_verifications table)
+
+After verification → generate unique UUIDv4 API key automatically
+
+Developer Dashboard Features:
+
+Show API key and current usage vs plan limit
+
+Provide example API calls for /movies and /search
+
+Simple API playground in browser
+
+Show monthly usage graph (optional)
+
+Restrictions:
+
+Developers can only view their own API key and usage stats
+
+Part 4 — Database Schema (PostgreSQL)
+
+users: id, name, email, hashed_password, verified, created_at
+
+email_verifications: id, user_id, token, expires_at, created_at
+
+api_keys: id, owner_id, key, plan, usage_count, created_at, expires_at
+
+usage_logs: id, api_key_id, endpoint, timestamp
+
+movies: id, title, year, genre, director, actors, plot, poster_url
+
+Add indexes on title, year, genre for fast search queries
+
+Part 5 — Security & Best Practices
+
+Passwords hashed with bcrypt
+
+Unique UUIDv4 API keys, random and secure
+
+Admin routes protected with session/JWT
+
+Validate CSV before inserting into DB
+
+Prevent duplicates by checking title + year combination
+
+Efficient DB queries, proper pagination, indexing
+
+Part 6 — Performance & Real-Time Handling
+
+CSV uploads update DB without downtime
+
+API endpoints query DB directly (no static memory JSON)
+
+Pagination & search optimized with PostgreSQL indexing
+
+Usage tracking should be lightweight, avoid performance hits
+
+Part 7 — Project Structure
+/api      → FastAPI endpoints (movies, search, api-key)
+/admin    → Admin panel (Bootstrap + HTML/JS)
+/dev      → Developer portal (Bootstrap + HTML/JS)
+/data     → CSV storage
+/static   → CSS/JS/images
+/templates → HTML templates (FastAPI Jinja2)
+
+Part 8 — Features Recap
+
+Real-time Movie API with /movies, /search, /movies/{id}
+
+Admin portal:
+
+Upload CSV → DB reload
+
+Manage API keys & logs
+
+Developer portal:
+
+Signup/login + email verification
+
+Automatic API key issuance
+
+Usage stats + playground
+
+API Key authentication and per-key usage tracking
+
+PostgreSQL indexes for fast searches
+
+Safe, secure, and scalable for thousands of movies
+
+Fully deployable on Railway free tier
+
+Part 9 — Output Requirements
+
+Full working code ready for Replit / Railway deployment
+
+Modular and well-documented
+
+Includes instructions for:
+
+PostgreSQL setup
+
+CSV upload and validation
+
+Email verification & token system
+
+API key usage and limits
+
+Example JSON responses for all endpoints
+
+Admin and Developer dashboards fully functional
+
+Goal: Fully automated, real-time Movie/TV API system, scalable, secure, with admin & developer portals, email verification, API key management, and production-ready for free hosting with PostgreSQL.

@@ -1,0 +1,244 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Movies Management - Admin Panel{% endblock %}
+{% block header %}Movies Management{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Upload CSV Section -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-upload me-2"></i>
+                    Upload Movies CSV
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/admin/movies/upload" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">Select CSV File</label>
+                                <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
+                                <div class="form-text">
+                                    CSV must contain columns: id, title, year, genre, director, actors, plot, poster_url
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-upload me-2"></i>
+                                Upload & Process
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <hr>
+                
+                <div class="text-muted">
+                    <strong>CSV Format Example:</strong><br>
+                    <code>id,title,year,genre,director,actors,plot,poster_url</code><br>
+                    <code>1,"The Matrix",1999,"Action|Sci-Fi","Lana Wachowski","Keanu Reeves|Laurence Fishburne","A computer hacker...","https://example.com/poster.jpg"</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movies Table -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-film me-2"></i>
+                    Movies Database ({{ movies|length }} movies)
+                </h6>
+                <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV()">
+                    <i class="bi bi-download me-1"></i>
+                    Export CSV
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="moviesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Year</th>
+                                <th>Genre</th>
+                                <th>Director</th>
+                                <th>Actors</th>
+                                <th>Created</th>
+                                <th>Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movie in movies %}
+                            <tr>
+                                <td>{{ movie.id }}</td>
+                                <td>
+                                    <strong>{{ movie.title }}</strong>
+                                    {% if movie.poster_url %}
+                                    <br><small><a href="{{ movie.poster_url }}" target="_blank" class="text-muted">View Poster</a></small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ movie.year }}</td>
+                                <td>
+                                    {% for genre in movie.genre.split('|') %}
+                                        <span class="badge bg-secondary me-1">{{ genre }}</span>
+                                    {% endfor %}
+                                </td>
+                                <td>{{ movie.director }}</td>
+                                <td>
+                                    <small>{{ movie.actors[:50] }}{% if movie.actors|length > 50 %}...{% endif %}</small>
+                                </td>
+                                <td>
+                                    <small>{{ movie.created_at.strftime('%Y-%m-%d %H:%M') if movie.created_at else 'N/A' }}</small>
+                                </td>
+                                <td>
+                                    <small>{{ movie.updated_at.strftime('%Y-%m-%d %H:%M') if movie.updated_at else 'N/A' }}</small>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info" onclick="viewMovie({{ movie.id }})">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="editMovie({{ movie.id }})">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteMovie({{ movie.id }})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Movie View Modal -->
+<div class="modal fade" id="movieModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="movieModalTitle">Movie Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="movieModalBody">
+                <!-- Movie details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function viewMovie(movieId) {
+    // Find movie data from the table
+    const row = document.querySelector(`tr td:first-child:contains("${movieId}")`);
+    if (!row) return;
+    
+    // This is a simple implementation - in a real app, you'd fetch from API
+    document.getElementById('movieModalTitle').textContent = 'Movie Details';
+    document.getElementById('movieModalBody').innerHTML = '<p>Loading movie details...</p>';
+    
+    // Show modal
+    new bootstrap.Modal(document.getElementById('movieModal')).show();
+    
+    // In a real implementation, you'd make an AJAX call here
+    setTimeout(() => {
+        document.getElementById('movieModalBody').innerHTML = `
+            <p><strong>Movie ID:</strong> ${movieId}</p>
+            <p>Movie details would be loaded via API call here.</p>
+        `;
+    }, 500);
+}
+
+function editMovie(movieId) {
+    // Implement edit functionality
+    alert('Edit functionality would be implemented here for movie ID: ' + movieId);
+}
+
+function deleteMovie(movieId) {
+    if (confirm('Are you sure you want to delete this movie?')) {
+        // Implement delete functionality
+        alert('Delete functionality would be implemented here for movie ID: ' + movieId);
+    }
+}
+
+function exportToCSV() {
+    // Simple CSV export functionality
+    const table = document.getElementById('moviesTable');
+    let csv = [];
+    
+    // Get headers
+    const headers = [];
+    table.querySelectorAll('thead th').forEach(th => {
+        if (th.textContent !== 'Actions') {
+            headers.push(th.textContent);
+        }
+    });
+    csv.push(headers.join(','));
+    
+    // Get data
+    table.querySelectorAll('tbody tr').forEach(tr => {
+        const row = [];
+        const cells = tr.querySelectorAll('td');
+        for (let i = 0; i < cells.length - 1; i++) { // Skip actions column
+            let cellText = cells[i].textContent.trim();
+            cellText = cellText.replace(/"/g, '""'); // Escape quotes
+            row.push(`"${cellText}"`);
+        }
+        csv.push(row.join(','));
+    });
+    
+    // Download
+    const csvString = csv.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'movies_export.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+// Add search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add search input if it doesn't exist
+    const cardHeader = document.querySelector('.card-header h6');
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Search movies...';
+    searchInput.className = 'form-control form-control-sm';
+    searchInput.style.width = '200px';
+    searchInput.style.display = 'inline-block';
+    
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'd-flex align-items-center';
+    searchContainer.innerHTML = '<i class="bi bi-search me-2"></i>';
+    searchContainer.appendChild(searchInput);
+    
+    cardHeader.parentNode.appendChild(searchContainer);
+    
+    // Search functionality
+    searchInput.addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#moviesTable tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    });
+});
+</script>
+{% endblock %}
