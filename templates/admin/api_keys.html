@@ -295,3 +295,102 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+{% extends "admin/base.html" %}
+
+{% block title %}API Keys Management - Admin Panel{% endblock %}
+{% block header %}API Keys Management{% endblock %}
+
+{% block content %}
+<!-- Create API Key -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-plus-circle me-2"></i>Create New API Key
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="post" action="/admin/api-keys/create">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="owner_name" class="form-label">Owner Name</label>
+                    <input type="text" class="form-control" id="owner_name" name="owner_name" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="owner_email" class="form-label">Owner Email</label>
+                    <input type="email" class="form-control" id="owner_email" name="owner_email" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="plan" class="form-label">Plan</label>
+                    <select class="form-control" id="plan" name="plan" required>
+                        <option value="free">Free (1,000 requests)</option>
+                        <option value="premium">Premium (10,000 requests)</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-plus me-2"></i>Create
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- API Keys Table -->
+<div class="card shadow">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-key me-2"></i>All API Keys ({{ api_keys|length }})
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Owner</th>
+                        <th>Email</th>
+                        <th>API Key</th>
+                        <th>Plan</th>
+                        <th>Usage</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for api_key in api_keys %}
+                    <tr>
+                        <td>{{ api_key.owner.name }}</td>
+                        <td>{{ api_key.owner.email }}</td>
+                        <td><code>{{ api_key.key[:20] }}...</code></td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if api_key.plan == 'premium' else 'secondary' }}">
+                                {{ api_key.plan.title() }}
+                            </span>
+                        </td>
+                        <td>{{ api_key.usage_count }}/{{ api_key.monthly_limit }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if api_key.is_active else 'danger' }}">
+                                {{ 'Active' if api_key.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>{{ api_key.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <form method="post" action="/admin/api-keys/{{ api_key.id }}/toggle" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-{{ 'warning' if api_key.is_active else 'success' }}">
+                                    {{ 'Suspend' if api_key.is_active else 'Activate' }}
+                                </button>
+                            </form>
+                            <form method="post" action="/admin/api-keys/{{ api_key.id }}/reset" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-info">Reset Usage</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

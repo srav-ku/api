@@ -242,3 +242,92 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+{% extends "admin/base.html" %}
+
+{% block title %}Movies Management - Admin Panel{% endblock %}
+{% block header %}Movies Management{% endblock %}
+
+{% block content %}
+<!-- Upload Section -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-cloud-upload me-2"></i>Upload Movies CSV
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if success %}
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle me-2"></i>{{ success }}
+        </div>
+        {% endif %}
+        
+        {% if error %}
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="post" action="/admin/movies/upload" enctype="multipart/form-data">
+            <div class="row align-items-end">
+                <div class="col-md-8">
+                    <label for="file" class="form-label">CSV File</label>
+                    <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
+                    <div class="form-text">
+                        Required columns: id, title, year, genre, director, actors, plot, poster_url
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-upload me-2"></i>Upload CSV
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Movies Table -->
+<div class="card shadow">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-film me-2"></i>Movies Database ({{ movies|length }} movies)
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Year</th>
+                        <th>Genre</th>
+                        <th>Director</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movie in movies[:50] %}
+                    <tr>
+                        <td>{{ movie.id }}</td>
+                        <td><strong>{{ movie.title }}</strong></td>
+                        <td>{{ movie.year }}</td>
+                        <td>{{ movie.genre.split('|')[0] if movie.genre else 'N/A' }}</td>
+                        <td>{{ movie.director }}</td>
+                        <td>{{ movie.created_at.strftime('%Y-%m-%d') if movie.created_at else 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if movies|length > 50 %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            ... and {{ movies|length - 50 }} more movies
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

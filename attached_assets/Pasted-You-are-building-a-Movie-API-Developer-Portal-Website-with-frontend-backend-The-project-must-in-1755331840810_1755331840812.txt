@@ -1,0 +1,131 @@
+You are building a Movie API + Developer Portal Website with frontend + backend. The project must integrate authentication, API key generation, admin controls, and real-time performance. Follow these detailed instructions:
+
+Phase 1 – Backend (API Core)
+
+Framework: Use FastAPI with Python.
+
+Database: PostgreSQL (or MongoDB if preferred) for real-time movie data + user accounts + API usage logs.
+
+Movie API Endpoints:
+
+GET /movies?page=1&per_page=10 → Paginated movie list.
+
+GET /movies/{id} → Get movie details by ID.
+
+GET /search?title=...&year=...&genre=... → Search with filters.
+
+Response must include: id, title, year, genre, director, actors, plot, poster_url.
+
+Real Data: Replace dummy CSV with external live data source (e.g., TMDB API or OMDb API).
+
+Movies sync/update daily.
+
+Cache results for fast performance.
+
+Authentication & API Keys:
+
+Users must register/login to get an API key.
+
+API key must be included in every request as Authorization: Bearer <API_KEY>.
+
+Rate limiting per user (e.g., 100 requests/hour).
+
+Usage Logs: Save logs (API calls, time, endpoint, user) to database.
+
+Phase 2 – Frontend (Developer UI)
+
+Tech: Use Next.js + TailwindCSS for frontend.
+
+Pages:
+
+Landing Page → Intro, API features, docs link, pricing/free tier.
+
+Login/Register:
+
+Only allow Gmail/Yahoo accounts.
+
+Email verification required (send OTP/verification link).
+
+Developer Dashboard:
+
+Show API key (generated once, cannot be changed).
+
+Show usage stats (calls made, limits left).
+
+"Test API" section with built-in client (try endpoints).
+
+API Docs (Swagger/Redoc embedded).
+
+Error handling → show clear errors (e.g., expired key, invalid params).
+
+API Key Generation:
+
+After verification, auto-generate 1 permanent API key.
+
+Key is read-only view in dashboard (cannot be changed).
+
+If lost → revoke + reissue (admin approval needed).
+
+Phase 3 – Admin Portal
+
+Admin Login (separate from developer login).
+
+Features:
+
+View all registered developers.
+
+Approve/deny API key requests.
+
+Suspend/revoke users.
+
+View analytics (total requests, active users, most-used endpoints).
+
+Download logs (CSV/Excel).
+
+Manage movies (add/update/remove movies manually in DB if needed).
+
+Security:
+
+Strong admin authentication.
+
+Admin actions logged (who revoked/approved keys).
+
+Phase 4 – Deployment & Scaling
+
+Deploy backend API on Replit / Render / Railway / Vercel backend.
+
+Deploy frontend (Next.js) on Vercel/Netlify.
+
+Enable CORS for frontend → backend API communication.
+
+Use Redis caching for fast movie search results.
+
+Monitor with Prometheus + Grafana (API usage + performance).
+
+Automatic backups for database.
+
+Extra Features (Optional but Recommended)
+
+Free vs Paid Tier:
+
+Free → 100 req/day.
+
+Paid → unlimited requests (Stripe integration).
+
+Dark/Light Mode UI toggle.
+
+Search autocomplete in frontend.
+
+Swagger UI Docs embedded in Developer Dashboard.
+
+✅ Final Deliverable
+
+A production-ready Movie API + Website where:
+
+Developers can register/login (Gmail/Yahoo only) → verify email → get API key → test API → view usage.
+
+Admin can monitor/manage everything.
+
+Backend serves real-time movie data with no performance issues.
+
+Frontend UI is modern, responsive, and user-friendly.

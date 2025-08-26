@@ -1,12 +1,14 @@
 from fastapi import FastAPI, HTTPException, Query, Depends, Request, Security
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+
 from sqlalchemy.orm import Session
 from typing import Optional, List
 import math
+import os
 from datetime import datetime, timedelta
 
 # Database imports
@@ -21,12 +23,25 @@ from models import (
 
 # Import route modules
 from api.admin_routes import router as admin_router
+from api.dev_routes import router as dev_router
+from db.services import ApiKeyService
+
+# Import for email configuration
+import smtplib
+from email.mime.text import MIMEText
+
+# Load email credentials from environment variables or Replit Secrets
+EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+SMTP_SERVER = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", 587))
+
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Movie API v2 - Database & API Key Edition",
-    description="A FastAPI backend for movie search and listing with PostgreSQL database and API key authentication",
-    version="2.0.0"
+    title="Movie API",
+    description="A comprehensive movie database API with user authentication and API key management",
+    version="1.0.0"
 )
 
 # Define API Key header for Swagger UI
@@ -41,14 +56,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
 # Include routers
 app.include_router(admin_router, tags=["admin"])
-
-# Templates
-templates = Jinja2Templates(directory="templates")
+app.include_router(dev_router, tags=["developer"])
 
 @app.on_event("startup")
 async def startup_event():
@@ -56,34 +66,26 @@ async def startup_event():
     try:
         create_tables()
         print("Database tables created successfully!")
+
+        # Load sample data if no movies exist
+        from data_loader import load_movies_from_csv
+        load_movies_from_csv()
+
+        # Create admin user if doesn't exist
+        from create_admin import create_admin_user
+        create_admin_user()
+
     except Exception as e:
         print(f"Failed to create database tables: {e}")
         raise
 
-@app.get("/")
-async def root():
-    """Root endpoint with API information."""
-    return {
-        "message": "Welcome to the Movie API v2",
-        "version": "2.0.0",
-        "features": [
-            "PostgreSQL database integration",
-            "API key authentication",
-            "Rate limiting (1000 requests/month for free plan)",
-            "Usage tracking and analytics"
-        ],
-        "endpoints": {
-            "movies": "/movies - List all movies with pagination (requires API key)",
-            "search": "/search - Search movies by title, year, genre (requires API key)",
-            "movie_detail": "/movies/{id} - Get movie details by ID (requires API key)",
-            "usage_stats": "/api-key/stats - Get usage statistics for your API key",
-            "admin": "/admin/* - Admin endpoints for API key management"
-        },
-        "authentication": {
-            "header": "X-API-KEY",
-            "description": "All endpoints (except this one) require a valid API key"
-        }
-    }
+@app.get("/", response_class=HTMLResponse)
+async def homepage(request: Request):
+    """Homepage with landing page."""
+    templates = Jinja2Templates(directory="templates")
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
 
 @app.get("/movies", response_model=PaginatedMoviesResponse)
 async def get_movies(
@@ -94,15 +96,15 @@ async def get_movies(
 ):
     """
     Get all movies with pagination.
-    
+
     Requires API key authentication via X-API-KEY header.
-    
+
     - **page**: Page number (default: 1)
     - **per_page**: Number of movies per page (default: 10, max: 50)
     """
     try:
         total_movies = db.query(Movie).count()
-        
+
         if total_movies == 0:
             return PaginatedMoviesResponse(
                 movies=[],
@@ -111,22 +113,22 @@ async def get_movies(
                 total_movies=0,
                 total_pages=0
             )
-        
+
         total_pages = math.ceil(total_movies / per_page)
-        
+
         # Validate page number
         if page > total_pages:
             raise HTTPException(
-                status_code=404, 
+                status_code=404,
                 detail=f"Page {page} not found. Total pages: {total_pages}"
             )
-        
+
         # Calculate skip value for pagination
         skip = (page - 1) * per_page
-        
+
         # Get movies for current page
         movies = db.query(Movie).offset(skip).limit(per_page).all()
-        
+
         # Convert to response format
         def movie_to_response(movie: Movie) -> MovieResponse:
             return MovieResponse(
@@ -139,9 +141,9 @@ async def get_movies(
                 plot=movie.plot,
                 poster_url=movie.poster_url or ""
             )
-        
+
         movie_responses = [movie_to_response(movie) for movie in movies]
-        
+
         return PaginatedMoviesResponse(
             movies=movie_responses,
             page=page,
@@ -149,7 +151,7 @@ async def get_movies(
             total_movies=total_movies,
             total_pages=total_pages
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -165,37 +167,37 @@ async def search_movies(
 ):
     """
     Search movies by title, year, and/or genre.
-    
+
     Requires API key authentication via X-API-KEY header.
-    
+
     - **title**: Search in movie titles (case-insensitive, partial match)
     - **year**: Search by exact release year
     - **genre**: Search in genres (case-insensitive, partial match)
-    
+
     You can combine multiple search parameters.
     """
     try:
         # Validate that at least one search parameter is provided
         if not any([title, year, genre]):
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail="At least one search parameter (title, year, or genre) must be provided"
             )
-        
+
         # Perform search
         query = db.query(Movie)
-        
+
         if title:
             query = query.filter(Movie.title.ilike(f"%{title}%"))
-        
+
         if year:
             query = query.filter(Movie.year == year)
-        
+
         if genre:
             query = query.filter(Movie.genre.ilike(f"%{genre}%"))
-        
+
         search_results = query.all()
-        
+
         # Convert to response format
         def movie_to_response(movie: Movie) -> MovieResponse:
             return MovieResponse(
@@ -208,9 +210,9 @@ async def search_movies(
                 plot=movie.plot,
                 poster_url=movie.poster_url or ""
             )
-        
+
         movie_responses = [movie_to_response(movie) for movie in search_results]
-        
+
         # Prepare query information for response
         query_info = {}
         if title:
@@ -219,13 +221,13 @@ async def search_movies(
             query_info["year"] = year
         if genre:
             query_info["genre"] = genre
-        
+
         return SearchResponse(
             movies=movie_responses,
             query=query_info,
             total_results=len(movie_responses)
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -239,20 +241,20 @@ async def get_movie_by_id(
 ):
     """
     Get full movie details by ID.
-    
+
     Requires API key authentication via X-API-KEY header.
-    
+
     - **movie_id**: The unique identifier of the movie
     """
     try:
         movie = db.query(Movie).filter(Movie.id == movie_id).first()
-        
+
         if not movie:
             raise HTTPException(
-                status_code=404, 
+                status_code=404,
                 detail=f"Movie with ID {movie_id} not found"
             )
-        
+
         def movie_to_response(movie: Movie) -> MovieResponse:
             return MovieResponse(
                 id=movie.id,
@@ -264,9 +266,9 @@ async def get_movie_by_id(
                 plot=movie.plot,
                 poster_url=movie.poster_url or ""
             )
-        
+
         return movie_to_response(movie)
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -280,28 +282,28 @@ async def get_api_key_stats(
 ):
     """
     Get usage statistics for the current API key.
-    
+
     Requires API key authentication via X-API-KEY header.
     """
     try:
         # Get usage stats for current API key
         from datetime import datetime, timedelta
         start_date = datetime.now() - timedelta(days=30)
-        
+
         usage_logs = db.query(UsageLog).filter(
             UsageLog.api_key_id == current_user.id,
             UsageLog.timestamp >= start_date
         ).all()
-        
+
         # Group by endpoint
         endpoint_stats = {}
         for log in usage_logs:
             if log.endpoint not in endpoint_stats:
                 endpoint_stats[log.endpoint] = 0
             endpoint_stats[log.endpoint] += 1
-        
+
         usage_percentage = (current_user.usage_count / current_user.monthly_limit) * 100
-        
+
         return UsageStatsResponse(
             api_key=current_user.key,
             owner_name=current_user.owner.name if current_user.owner else "Unknown",
@@ -323,32 +325,31 @@ async def get_admin_stats(db: Session = Depends(get_database)):
     """
     try:
         from sqlalchemy import func
-        
+
         # Get API key statistics
         total_api_keys = db.query(ApiKey).count()
         active_api_keys = db.query(ApiKey).filter(ApiKey.is_active == "active").count()
         suspended_api_keys = db.query(ApiKey).filter(ApiKey.is_active == "suspended").count()
-        
+
         # Get movie count
         total_movies = db.query(Movie).count()
-        
+
         # Get today's requests
         today = datetime.now().date()
-        from db.models import UsageLog
         total_requests_today = db.query(UsageLog).filter(
             func.date(UsageLog.timestamp) == today
         ).count()
-        
+
         # Get top endpoints
         endpoint_counts = db.query(
-            UsageLog.endpoint, 
+            UsageLog.endpoint,
             func.count(UsageLog.endpoint).label('count')
         ).group_by(UsageLog.endpoint).order_by(
             func.count(UsageLog.endpoint).desc()
         ).limit(5).all()
-        
+
         top_endpoints = {endpoint: count for endpoint, count in endpoint_counts}
-        
+
         return AdminStatsResponse(
             total_api_keys=total_api_keys,
             active_api_keys=active_api_keys,
@@ -398,7 +399,7 @@ async def create_api_key(
             plan=request.plan,
             monthly_limit=request.monthly_limit
         )
-        
+
         return ApiKeyResponse(
             id=api_key.id,
             owner_name=api_key.owner_name,
@@ -430,6 +431,81 @@ async def reset_api_key_usage(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+# --- OTP Verification ---
+
+def send_otp_email(email: str, otp: str):
+    """Sends OTP to the given email address."""
+    if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
+        print("Email credentials not configured. Skipping OTP email.")
+        return False
+
+    msg = MIMEText(f"Your OTP for verification is: {otp}")
+    msg['Subject'] = "Movie API OTP Verification"
+    msg['From'] = EMAIL_ADDRESS
+    msg['To'] = email
+
+    try:
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()  # Secure the connection
+            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            server.sendmail(EMAIL_ADDRESS, email, msg.as_string())
+        print(f"OTP email sent successfully to {email}")
+        return True
+    except Exception as e:
+        print(f"Failed to send OTP email: {e}")
+        return False
+
+# Global OTP storage (in production, use Redis or database)
+otp_storage = {}
+
+@app.post("/verify/request-otp")
+async def request_otp(request: Request, email: str = Query(..., description="User's email address")):
+    """Requests an OTP for email verification."""
+    import random
+    otp = str(random.randint(100000, 999999))
+
+    # Store OTP with expiry (15 minutes)
+    from datetime import datetime, timedelta
+    expiry = datetime.now() + timedelta(minutes=15)
+    otp_storage[email] = {"otp": otp, "expiry": expiry}
+
+    print(f"=== OTP VERIFICATION ===")
+    print(f"Email: {email}")
+    print(f"OTP Code: {otp}")
+    print(f"Expires: {expiry}")
+    print(f"========================")
+
+    # Try to send email, but continue even if it fails
+    try:
+        send_otp_email(email, otp)
+    except Exception as e:
+        print(f"Email sending failed: {e}")
+
+    return {"message": "OTP generated successfully. Check console for OTP (email sending may not work without SMTP config)."}
+
+@app.post("/verify/verify-otp")
+async def verify_otp(request: Request, email: str = Query(..., description="User's email address"), otp: str = Query(..., description="The OTP received")):
+    """Verifies the provided OTP for the given email."""
+    stored_data = otp_storage.get(email)
+
+    if not stored_data:
+        raise HTTPException(status_code=400, detail="No OTP found for this email.")
+
+    # Check if OTP has expired
+    if datetime.now() > stored_data["expiry"]:
+        del otp_storage[email]
+        raise HTTPException(status_code=400, detail="OTP has expired.")
+
+    # Check if OTP matches
+    if stored_data["otp"] != otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP.")
+
+    # OTP is valid, clear it from storage
+    del otp_storage[email]
+
+    return {"message": "Email verified successfully!"}
+
 
 @app.exception_handler(404)
 async def not_found_handler(request, exc):

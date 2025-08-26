@@ -67,6 +67,7 @@ class APIKeyAuth:
         usage_log = UsageLog(
             api_key_id=db_api_key.id,
             endpoint=endpoint,
+            method=request.method,
             ip_address=request.client.host if request.client else None,
             user_agent=request.headers.get("user-agent")
         )

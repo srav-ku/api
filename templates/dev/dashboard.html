@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Dashboard - Movie API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #000000;
+            --primary-white: #ffffff;
+            --gray-light: #f8f9fa;
+            --gray-medium: #6c757d;
+            --success-green: #198754;
+            --warning-orange: #fd7e14;
+            --danger-red: #dc3545;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-light);
+        }
+        
+        .sidebar {
+            background: var(--primary-black);
+            color: var(--primary-white);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            border-radius: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover {
+            color: var(--primary-white);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .sidebar .nav-link.active {
+            color: var(--primary-white);
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .dashboard-card {
+            background: var(--primary-white);
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--primary-black), #333);
+            color: var(--primary-white);
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        
+        .api-key-card {
+            background: var(--primary-white);
+            border: 2px solid var(--gray-light);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .api-key-card:hover {
+            border-color: var(--primary-black);
+        }
+        
+        .btn-custom {
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-black {
+            background: var(--primary-black);
+            color: var(--primary-white);
+            border: 2px solid var(--primary-black);
+        }
+        
+        .btn-black:hover {
+            background: var(--primary-white);
+            color: var(--primary-black);
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        
+        .usage-progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        
+        .header-section {
+            background: var(--primary-white);
+            border-bottom: 1px solid #dee2e6;
+            padding: 20px 0;
+            margin: -20px -20px 20px -20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="p-3">
+            <h4 class="mb-0">
+                <i class="bi bi-film me-2"></i>Movie API
+            </h4>
+            <small class="text-muted">Developer Portal</small>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#dashboard">
+                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#api-keys">
+                    <i class="bi bi-key me-2"></i>API Keys
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#usage">
+                    <i class="bi bi-graph-up me-2"></i>Usage Statistics
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/docs" target="_blank">
+                    <i class="bi bi-book me-2"></i>Documentation
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/dev/logout">
+                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header-section">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fw-bold mb-1">Welcome back, {{ user.name }}!</h2>
+                        <p class="text-muted mb-0">Manage your API keys and monitor usage</p>
+                    </div>
+                    <div class="col-auto">
+                        <span class="badge bg-success fs-6">
+                            <i class="bi bi-check-circle me-1"></i>Verified Account
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        {% if request.query_params.get('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>{{ request.query_params.get('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        {% if request.query_params.get('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ request.query_params.get('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <!-- Statistics Overview -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 opacity-75">Total API Keys</h6>
+                            <h3 class="fw-bold mb-0">{{ api_keys|length }}</h3>
+                        </div>
+                        <i class="bi bi-key" style="font-size: 2rem; opacity: 0.7;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 opacity-75">Total Requests</h6>
+                            <h3 class="fw-bold mb-0">
+                                {{ usage_stats|sum(attribute='total_requests') if usage_stats else 0 }}
+                            </h3>
+                        </div>
+                        <i class="bi bi-bar-chart" style="font-size: 2rem; opacity: 0.7;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 opacity-75">Account Status</h6>
+                            <h5 class="fw-bold mb-0 text-success">ACTIVE</h5>
+                        </div>
+                        <i class="bi bi-shield-check" style="font-size: 2rem; opacity: 0.7;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Keys Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <div class="card-header bg-white py-3">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="fw-bold mb-0">
+                                    <i class="bi bi-key me-2"></i>Your API Keys
+                                </h5>
+                            </div>
+                            <div class="col-auto">
+                                <form method="post" action="/dev/api-key/generate" style="display: inline;">
+                                    <button type="submit" class="btn btn-black btn-custom">
+                                        <i class="bi bi-plus-circle me-2"></i>Generate New Key
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if api_keys %}
+                            {% for stat in usage_stats %}
+                            <div class="api-key-card">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6 class="fw-bold mb-2">
+                                            API Key #{{ loop.index }}
+                                            <span class="badge bg-{{ 'success' if stat.api_key.is_active else 'danger' }} ms-2">
+                                                {{ 'Active' if stat.api_key.is_active else 'Inactive' }}
+                                            </span>
+                                        </h6>
+                                        <div class="code-block mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <code id="api-key-{{ loop.index }}">{{ stat.api_key.key }}</code>
+                                                <button class="btn btn-sm btn-outline-secondary" 
+                                                        onclick="copyToClipboard('api-key-{{ loop.index }}')">
+                                                    <i class="bi bi-clipboard"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row text-center">
+                                            <div class="col-4">
+                                                <small class="text-muted">Plan</small>
+                                                <div class="fw-bold text-capitalize">{{ stat.api_key.plan }}</div>
+                                            </div>
+                                            <div class="col-4">
+                                                <small class="text-muted">Usage</small>
+                                                <div class="fw-bold">{{ stat.api_key.usage_count }}/{{ stat.api_key.monthly_limit }}</div>
+                                            </div>
+                                            <div class="col-4">
+                                                <small class="text-muted">Requests</small>
+                                                <div class="fw-bold">{{ stat.total_requests }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <div class="mb-3">
+                                                <small class="text-muted">Usage Progress</small>
+                                                {% set usage_percent = (stat.api_key.usage_count / stat.api_key.monthly_limit * 100) %}
+                                                <div class="progress usage-progress mt-2">
+                                                    <div class="progress-bar bg-{{ 'danger' if usage_percent > 80 else 'success' }}" 
+                                                         style="width: {{ usage_percent }}%"></div>
+                                                </div>
+                                                <small class="text-muted">{{ "%.1f"|format(usage_percent) }}% used</small>
+                                            </div>
+                                            <small class="text-muted d-block">
+                                                Created: {{ stat.api_key.created_at.strftime('%Y-%m-%d') }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-key" style="font-size: 4rem; color: var(--gray-medium);"></i>
+                                <h5 class="mt-3 text-muted">No API Keys Yet</h5>
+                                <p class="text-muted">Generate your first API key to start using the Movie API</p>
+                                <form method="post" action="/dev/api-key/generate" style="display: inline;">
+                                    <button type="submit" class="btn btn-black btn-custom">
+                                        <i class="bi bi-plus-circle me-2"></i>Generate Your First API Key
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Start Guide -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-rocket-takeoff me-2"></i>Quick Start Guide
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">1. Use your API key in requests:</h6>
+                                <div class="code-block">
+                                    <code>curl -H "X-API-KEY: YOUR_API_KEY" \<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp; {{ request.url.scheme }}://{{ request.url.netloc }}/movies</code>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">2. Search for movies:</h6>
+                                <div class="code-block">
+                                    <code>curl -H "X-API-KEY: YOUR_API_KEY" \<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp; "{{ request.url.scheme }}://{{ request.url.netloc }}/search?title=batman"</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <a href="/docs" target="_blank" class="btn btn-outline-dark btn-custom">
+                                <i class="bi bi-book me-2"></i>View Full Documentation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            navigator.clipboard.writeText(element.textContent).then(() => {
+                // Show success feedback
+                const button = event.target.closest('button');
+                const originalIcon = button.innerHTML;
+                button.innerHTML = '<i class="bi bi-check"></i>';
+                button.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalIcon;
+                    button.classList.remove('btn-success');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

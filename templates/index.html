@@ -1,0 +1,377 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie API - Developer Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #000000;
+            --primary-white: #ffffff;
+            --gray-light: #f8f9fa;
+            --gray-medium: #6c757d;
+            --gray-dark: #343a40;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-white);
+            color: var(--primary-black);
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-black) 0%, var(--gray-dark) 100%);
+            color: var(--primary-white);
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .btn-primary-custom {
+            background: var(--primary-black);
+            color: var(--primary-white);
+            border: 2px solid var(--primary-black);
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary-custom:hover {
+            background: var(--primary-white);
+            color: var(--primary-black);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--primary-white);
+            border: 2px solid var(--primary-white);
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-outline-custom:hover {
+            background: var(--primary-white);
+            color: var(--primary-black);
+            transform: translateY(-2px);
+        }
+        
+        .feature-card {
+            background: var(--primary-white);
+            border: 2px solid var(--gray-light);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            border-color: var(--primary-black);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-black);
+            margin-bottom: 1rem;
+        }
+        
+        .stats-card {
+            background: var(--gray-light);
+            border: 2px solid var(--gray-medium);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .footer {
+            background: var(--primary-black);
+            color: var(--primary-white);
+            padding: 3rem 0 1rem;
+        }
+        
+        .footer a {
+            color: var(--primary-white);
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .footer a:hover {
+            opacity: 0.8;
+            color: var(--primary-white);
+        }
+        
+        .admin-link {
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        
+        .admin-link:hover {
+            color: var(--primary-black);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .navbar {
+            background: var(--primary-white) !important;
+            border-bottom: 2px solid var(--gray-light);
+        }
+        
+        .navbar-nav .nav-link {
+            color: var(--primary-black) !important;
+            font-weight: 500;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: var(--gray-medium) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-film me-2"></i>Movie API
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docs" target="_blank">Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dev/register">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dev/login">Sign In</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">
+                        Powerful Movie API for Developers
+                    </h1>
+                    <p class="lead mb-4">
+                        Access thousands of movie records with our fast, reliable, and easy-to-use REST API. 
+                        Perfect for building movie applications, recommendation systems, and entertainment platforms.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="/dev/register" class="btn-primary-custom">
+                            <i class="bi bi-person-plus me-2"></i>Get Started Free
+                        </a>
+                        <a href="/docs" target="_blank" class="btn-outline-custom">
+                            <i class="bi bi-book me-2"></i>View Documentation
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="mt-5 mt-lg-0">
+                        <i class="bi bi-code-square" style="font-size: 12rem; opacity: 0.1;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="fw-bold mb-3">Why Choose Our Movie API?</h2>
+                    <p class="lead text-muted">Everything you need to build amazing movie applications</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <i class="bi bi-lightning-charge feature-icon"></i>
+                        <h4 class="fw-bold mb-3">Lightning Fast</h4>
+                        <p class="text-muted">
+                            Optimized database queries and caching ensure sub-100ms response times for all endpoints.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <i class="bi bi-shield-check feature-icon"></i>
+                        <h4 class="fw-bold mb-3">Secure & Reliable</h4>
+                        <p class="text-muted">
+                            API key authentication, rate limiting, and 99.9% uptime guarantee for production applications.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <i class="bi bi-graph-up feature-icon"></i>
+                        <h4 class="fw-bold mb-3">Real-time Analytics</h4>
+                        <p class="text-muted">
+                            Monitor your API usage, track performance, and optimize your applications with detailed analytics.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row g-4 text-center">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h3 class="fw-bold mb-1">10,000+</h3>
+                        <p class="text-muted mb-0">Movies Available</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h3 class="fw-bold mb-1">500+</h3>
+                        <p class="text-muted mb-0">Active Developers</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h3 class="fw-bold mb-1">1M+</h3>
+                        <p class="text-muted mb-0">API Calls/Month</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h3 class="fw-bold mb-1">99.9%</h3>
+                        <p class="text-muted mb-0">Uptime</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Endpoints Preview -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-5">
+                    <h2 class="fw-bold mb-3">Simple & Powerful Endpoints</h2>
+                    <p class="lead text-muted">RESTful API design with comprehensive movie data</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-list-ul me-2"></i>Get All Movies
+                        </h5>
+                        <div class="bg-light p-3 rounded">
+                            <code>GET /movies?page=1&per_page=10</code>
+                        </div>
+                        <p class="text-muted mt-3 mb-0">
+                            Paginated list of movies with filters for genre, year, and more.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-search me-2"></i>Search Movies
+                        </h5>
+                        <div class="bg-light p-3 rounded">
+                            <code>GET /search?title=batman&year=2022</code>
+                        </div>
+                        <p class="text-muted mt-3 mb-0">
+                            Advanced search with title, genre, year, and director filters.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 bg-dark text-white">
+        <div class="container text-center">
+            <h2 class="fw-bold mb-3">Ready to Start Building?</h2>
+            <p class="lead mb-4">
+                Join thousands of developers using our Movie API to create amazing applications.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/dev/register" class="btn-primary-custom">
+                    <i class="bi bi-rocket-takeoff me-2"></i>Start Free Trial
+                </a>
+                <a href="/dev/login" class="btn-outline-custom">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h5 class="fw-bold mb-3">Movie API</h5>
+                    <p class="text-muted">
+                        The most comprehensive movie API for developers. 
+                        Build better applications with our reliable data.
+                    </p>
+                </div>
+                <div class="col-lg-3">
+                    <h6 class="fw-bold mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/docs" target="_blank">API Documentation</a></li>
+                        <li><a href="/dev/register">Developer Registration</a></li>
+                        <li><a href="/dev/login">Developer Login</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h6 class="fw-bold mb-3">Support</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="mailto:support@movieapi.com">Email Support</a></li>
+                        <li><a href="/docs" target="_blank">Getting Started</a></li>
+                        <li><a href="/dev/dashboard">Dashboard</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: #495057;">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 Movie API. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="/admin/login" class="admin-link small">
+                        <i class="bi bi-gear me-1"></i>Admin Portal
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
