@@ -4,151 +4,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie API - Developer Portal</title>
+    <title>The Matrix - Movie API Platform</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         :root {
-            --primary-black: #000000;
-            --primary-white: #ffffff;
-            --gray-light: #f8f9fa;
-            --gray-medium: #6c757d;
-            --gray-dark: #343a40;
+            --matrix-primary: #6366f1;
+            --matrix-secondary: #8b5cf6;
+            --matrix-accent: #00ff41;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #000000;
+            --gray-800: #1a1a2e;
+            --gray-700: #2a2a3a;
+            --text-gray: #a0a0a0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--primary-white);
-            color: var(--primary-black);
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark-bg);
+            color: #ffffff;
+            overflow-x: hidden;
         }
         
-        .hero-section {
-            background: linear-gradient(135deg, var(--primary-black) 0%, var(--gray-dark) 100%);
-            color: var(--primary-white);
-            min-height: 70vh;
+        /* Matrix animation background */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #1a1a2e 100%);
+            z-index: -2;
+        }
+        
+        .matrix-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 255, 65, 0.05) 0%, transparent 50%);
+            animation: matrixPulse 8s ease-in-out infinite alternate;
+        }
+        
+        @keyframes matrixPulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.6; }
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--gray-700);
+            padding: 15px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-link {
+            color: var(--text-gray) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--matrix-primary) !important;
+            transform: translateY(-2px);
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
             display: flex;
             align-items: center;
+            position: relative;
+            padding-top: 80px;
         }
         
-        .btn-primary-custom {
-            background: var(--primary-black);
-            color: var(--primary-white);
-            border: 2px solid var(--primary-black);
-            border-radius: 8px;
-            padding: 12px 30px;
+        .hero-content {
+            z-index: 10;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, var(--matrix-primary) 50%, var(--matrix-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+            line-height: 1.1;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-gray);
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+        
+        .btn-matrix-primary {
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-secondary) 100%);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            color: white;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
         }
         
-        .btn-primary-custom:hover {
-            background: var(--primary-white);
-            color: var(--primary-black);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .btn-matrix-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+            color: white;
         }
         
-        .btn-outline-custom {
+        .btn-matrix-secondary {
             background: transparent;
-            color: var(--primary-white);
-            border: 2px solid var(--primary-white);
-            border-radius: 8px;
-            padding: 12px 30px;
+            border: 2px solid var(--matrix-primary);
+            padding: 15px 30px;
+            font-size: 1.1rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            color: var(--matrix-primary);
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            margin-left: 20px;
         }
         
-        .btn-outline-custom:hover {
-            background: var(--primary-white);
-            color: var(--primary-black);
-            transform: translateY(-2px);
+        .btn-matrix-secondary:hover {
+            background: var(--matrix-primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        /* Code Preview */
+        .code-preview {
+            background: var(--darker-bg);
+            border: 1px solid var(--gray-700);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: var(--gray-800);
+            border-bottom: 1px solid var(--gray-700);
+        }
+        
+        .code-preview::after {
+            content: '● ● ●';
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            color: var(--text-gray);
+            font-size: 12px;
+        }
+        
+        .code-content {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 30px;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background: var(--gray-800);
         }
         
         .feature-card {
-            background: var(--primary-white);
-            border: 2px solid var(--gray-light);
-            border-radius: 15px;
-            padding: 2rem;
+            background: var(--darker-bg);
+            border: 1px solid var(--gray-700);
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
             transition: all 0.3s ease;
             height: 100%;
         }
         
         .feature-card:hover {
-            border-color: var(--primary-black);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transform: translateY(-10px);
+            border-color: var(--matrix-primary);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1);
         }
         
         .feature-icon {
-            font-size: 3rem;
-            color: var(--primary-black);
-            margin-bottom: 1rem;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-secondary) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 2rem;
         }
         
-        .stats-card {
-            background: var(--gray-light);
-            border: 2px solid var(--gray-medium);
-            border-radius: 10px;
-            padding: 1.5rem;
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .feature-description {
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+        
+        /* Stats Section */
+        .stats {
+            padding: 80px 0;
             text-align: center;
         }
         
+        .stat-item {
+            margin-bottom: 30px;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-top: 10px;
+        }
+        
+        /* CTA Section */
+        .cta {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-secondary) 100%);
+            text-align: center;
+        }
+        
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        /* Footer */
         .footer {
-            background: var(--primary-black);
-            color: var(--primary-white);
-            padding: 3rem 0 1rem;
+            background: var(--darker-bg);
+            padding: 50px 0;
+            border-top: 1px solid var(--gray-700);
         }
         
-        .footer a {
-            color: var(--primary-white);
-            text-decoration: none;
-            transition: opacity 0.3s ease;
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
-        .footer a:hover {
-            opacity: 0.8;
-            color: var(--primary-white);
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
         }
         
-        .admin-link {
-            color: var(--gray-medium);
-            font-size: 0.9rem;
-            text-decoration: none;
-        }
-        
-        .admin-link:hover {
-            color: var(--primary-black);
-        }
-        
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        
-        .navbar {
-            background: var(--primary-white) !important;
-            border-bottom: 2px solid var(--gray-light);
-        }
-        
-        .navbar-nav .nav-link {
-            color: var(--primary-black) !important;
-            font-weight: 500;
-        }
-        
-        .navbar-nav .nav-link:hover {
-            color: var(--gray-medium) !important;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .btn-matrix-secondary {
+                margin-left: 0;
+                margin-top: 15px;
+            }
+            
+            .code-preview {
+                margin-top: 30px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="matrix-bg"></div>
+    
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <i class="bi bi-film me-2"></i>Movie API
+                <i class="bi bi-film me-2"></i>The Matrix
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -156,10 +351,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/docs" target="_blank">Documentation</a>
+                        <a class="nav-link" href="#features">Features</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/dev/register">Register</a>
+                        <a class="nav-link" href="#documentation">Docs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#pricing">Pricing</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/dev/login">Sign In</a>
@@ -168,210 +366,215 @@
             </div>
         </div>
     </nav>
-
+    
     <!-- Hero Section -->
-    <section class="hero-section">
+    <section class="hero">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold mb-4">
-                        Powerful Movie API for Developers
-                    </h1>
-                    <p class="lead mb-4">
-                        Access thousands of movie records with our fast, reliable, and easy-to-use REST API. 
-                        Perfect for building movie applications, recommendation systems, and entertainment platforms.
-                    </p>
-                    <div class="d-flex flex-wrap gap-3">
-                        <a href="/dev/register" class="btn-primary-custom">
-                            <i class="bi bi-person-plus me-2"></i>Get Started Free
-                        </a>
-                        <a href="/docs" target="_blank" class="btn-outline-custom">
-                            <i class="bi bi-book me-2"></i>View Documentation
-                        </a>
+                    <div class="hero-content fade-in-up">
+                        <h1 class="hero-title">Enter The Matrix<br>of Movie Data</h1>
+                        <p class="hero-subtitle">
+                            The most powerful movie API for developers. Access 10,000+ movies with lightning-fast queries, 
+                            comprehensive metadata, and enterprise-grade reliability.
+                        </p>
+                        <div class="hero-cta">
+                            <a href="/dev/register" class="btn-matrix-primary">
+                                <i class="bi bi-rocket-takeoff me-2"></i>Start Building
+                            </a>
+                            <a href="#documentation" class="btn-matrix-secondary">
+                                <i class="bi bi-book me-2"></i>View Documentation
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-6 text-center">
-                    <div class="mt-5 mt-lg-0">
-                        <i class="bi bi-code-square" style="font-size: 12rem; opacity: 0.1;"></i>
+                <div class="col-lg-6">
+                    <div class="code-preview fade-in-up">
+                        <div class="code-content">
+                            <div style="color: #6b7280;">// Connect to The Matrix API</div>
+                            <div><span style="color: #8b5cf6;">const</span> <span style="color: #fff;">response</span> = <span style="color: #8b5cf6;">await</span> <span style="color: #fff;">fetch</span>(<span style="color: #00ff41;">'https://thematrix.replit.app/movies'</span>, {</div>
+                            <div>&nbsp;&nbsp;<span style="color: #fff;">headers</span>: {</div>
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #00ff41;">'X-API-KEY'</span>: <span style="color: #00ff41;">'your-api-key'</span></div>
+                            <div>&nbsp;&nbsp;}</div>
+                            <div>});</div>
+                            <br>
+                            <div><span style="color: #8b5cf6;">const</span> <span style="color: #fff;">movies</span> = <span style="color: #8b5cf6;">await</span> <span style="color: #fff;">response</span>.<span style="color: #fff;">json</span>();</div>
+                            <div><span style="color: #6b7280;">// Welcome to The Matrix 🚀</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
+    
     <!-- Features Section -->
-    <section class="py-5">
+    <section class="features" id="features">
         <div class="container">
             <div class="row text-center mb-5">
                 <div class="col-12">
-                    <h2 class="fw-bold mb-3">Why Choose Our Movie API?</h2>
-                    <p class="lead text-muted">Everything you need to build amazing movie applications</p>
+                    <h2 class="display-4 fw-bold mb-3">Why Choose The Matrix?</h2>
+                    <p class="lead text-muted">Built for developers who demand speed, reliability, and comprehensive data</p>
                 </div>
             </div>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="feature-card text-center">
-                        <i class="bi bi-lightning-charge feature-icon"></i>
-                        <h4 class="fw-bold mb-3">Lightning Fast</h4>
-                        <p class="text-muted">
-                            Optimized database queries and caching ensure sub-100ms response times for all endpoints.
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-lightning-charge"></i>
+                        </div>
+                        <h3 class="feature-title">Lightning Fast</h3>
+                        <p class="feature-description">
+                            Optimized queries with sub-100ms response times. Built on modern infrastructure for maximum performance.
                         </p>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="feature-card text-center">
-                        <i class="bi bi-shield-check feature-icon"></i>
-                        <h4 class="fw-bold mb-3">Secure & Reliable</h4>
-                        <p class="text-muted">
-                            API key authentication, rate limiting, and 99.9% uptime guarantee for production applications.
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h3 class="feature-title">Enterprise Security</h3>
+                        <p class="feature-description">
+                            API key authentication, rate limiting, and comprehensive usage analytics to keep your app secure.
                         </p>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="feature-card text-center">
-                        <i class="bi bi-graph-up feature-icon"></i>
-                        <h4 class="fw-bold mb-3">Real-time Analytics</h4>
-                        <p class="text-muted">
-                            Monitor your API usage, track performance, and optimize your applications with detailed analytics.
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-database"></i>
+                        </div>
+                        <h3 class="feature-title">Rich Data</h3>
+                        <p class="feature-description">
+                            Complete movie metadata including cast, crew, plot summaries, ratings, and high-quality poster images.
                         </p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
+    
     <!-- Stats Section -->
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="row g-4 text-center">
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <h3 class="fw-bold mb-1">10,000+</h3>
-                        <p class="text-muted mb-0">Movies Available</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <h3 class="fw-bold mb-1">500+</h3>
-                        <p class="text-muted mb-0">Active Developers</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <h3 class="fw-bold mb-1">1M+</h3>
-                        <p class="text-muted mb-0">API Calls/Month</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <h3 class="fw-bold mb-1">99.9%</h3>
-                        <p class="text-muted mb-0">Uptime</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- API Endpoints Preview -->
-    <section class="py-5">
+    <section class="stats">
         <div class="container">
             <div class="row">
-                <div class="col-12 text-center mb-5">
-                    <h2 class="fw-bold mb-3">Simple & Powerful Endpoints</h2>
-                    <p class="lead text-muted">RESTful API design with comprehensive movie data</p>
-                </div>
-            </div>
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="feature-card">
-                        <h5 class="fw-bold mb-3">
-                            <i class="bi bi-list-ul me-2"></i>Get All Movies
-                        </h5>
-                        <div class="bg-light p-3 rounded">
-                            <code>GET /movies?page=1&per_page=10</code>
-                        </div>
-                        <p class="text-muted mt-3 mb-0">
-                            Paginated list of movies with filters for genre, year, and more.
-                        </p>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-item">
+                        <div class="stat-number">10,000+</div>
+                        <div class="stat-label">Movies in Database</div>
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="feature-card">
-                        <h5 class="fw-bold mb-3">
-                            <i class="bi bi-search me-2"></i>Search Movies
-                        </h5>
-                        <div class="bg-light p-3 rounded">
-                            <code>GET /search?title=batman&year=2022</code>
-                        </div>
-                        <p class="text-muted mt-3 mb-0">
-                            Advanced search with title, genre, year, and director filters.
-                        </p>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-item">
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">Uptime Guarantee</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-item">
+                        <div class="stat-number">< 100ms</div>
+                        <div class="stat-label">Average Response Time</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-item">
+                        <div class="stat-number">1,000+</div>
+                        <div class="stat-label">Happy Developers</div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
+    
     <!-- CTA Section -->
-    <section class="py-5 bg-dark text-white">
-        <div class="container text-center">
-            <h2 class="fw-bold mb-3">Ready to Start Building?</h2>
-            <p class="lead mb-4">
-                Join thousands of developers using our Movie API to create amazing applications.
-            </p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="/dev/register" class="btn-primary-custom">
-                    <i class="bi bi-rocket-takeoff me-2"></i>Start Free Trial
-                </a>
-                <a href="/dev/login" class="btn-outline-custom">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
-                </a>
-            </div>
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Enter The Matrix?</h2>
+            <p>Join thousands of developers building amazing movie applications</p>
+            <a href="/dev/register" class="btn-matrix-primary btn-lg">
+                <i class="bi bi-person-plus me-2"></i>Get Your API Key
+            </a>
         </div>
     </section>
-
+    
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="row">
-                <div class="col-lg-6">
-                    <h5 class="fw-bold mb-3">Movie API</h5>
-                    <p class="text-muted">
-                        The most comprehensive movie API for developers. 
-                        Build better applications with our reliable data.
-                    </p>
+                <div class="col-lg-4">
+                    <h5 class="mb-3">
+                        <i class="bi bi-film me-2 text-primary"></i>The Matrix
+                    </h5>
+                    <p class="text-muted">The ultimate movie API platform for developers who demand excellence.</p>
                 </div>
-                <div class="col-lg-3">
-                    <h6 class="fw-bold mb-3">Quick Links</h6>
+                <div class="col-lg-2">
+                    <h6 class="mb-3">API</h6>
                     <ul class="list-unstyled">
-                        <li><a href="/docs" target="_blank">API Documentation</a></li>
-                        <li><a href="/dev/register">Developer Registration</a></li>
-                        <li><a href="/dev/login">Developer Login</a></li>
+                        <li><a href="#" class="text-muted">Documentation</a></li>
+                        <li><a href="#" class="text-muted">Status</a></li>
+                        <li><a href="#" class="text-muted">Pricing</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-3">
-                    <h6 class="fw-bold mb-3">Support</h6>
+                <div class="col-lg-2">
+                    <h6 class="mb-3">Developers</h6>
                     <ul class="list-unstyled">
-                        <li><a href="mailto:support@movieapi.com">Email Support</a></li>
-                        <li><a href="/docs" target="_blank">Getting Started</a></li>
-                        <li><a href="/dev/dashboard">Dashboard</a></li>
+                        <li><a href="/dev/register" class="text-muted">Sign Up</a></li>
+                        <li><a href="/dev/login" class="text-muted">Sign In</a></li>
+                        <li><a href="/dev/dashboard" class="text-muted">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2">
+                    <h6 class="mb-3">Support</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted">Help Center</a></li>
+                        <li><a href="#" class="text-muted">Contact</a></li>
+                        <li><a href="#" class="text-muted">Community</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2">
+                    <h6 class="mb-3">Company</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted">About</a></li>
+                        <li><a href="#" class="text-muted">Privacy</a></li>
+                        <li><a href="#" class="text-muted">Terms</a></li>
                     </ul>
                 </div>
             </div>
-            <hr class="my-4" style="border-color: #495057;">
+            <hr class="my-4">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="mb-0">&copy; 2024 Movie API. All rights reserved.</p>
+                    <p class="text-muted mb-0">&copy; 2024 The Matrix API. All rights reserved.</p>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="/admin/login" class="admin-link small">
-                        <i class="bi bi-gear me-1"></i>Admin Portal
-                    </a>
+                <div class="col-md-6 text-end">
+                    <a href="#" class="text-muted me-3"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="text-muted me-3"><i class="bi bi-github"></i></a>
+                    <a href="#" class="text-muted"><i class="bi bi-discord"></i></a>
                 </div>
             </div>
         </div>
     </footer>
-
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.backgroundColor = 'rgba(0, 0, 0, 0.98)';
+            } else {
+                navbar.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
+            }
+        });
+    </script>
 </body>
 </html>

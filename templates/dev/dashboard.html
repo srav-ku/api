@@ -4,314 +4,687 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer Dashboard - Movie API</title>
+    <title>Developer Dashboard - The Matrix API</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         :root {
-            --primary-black: #000000;
-            --primary-white: #ffffff;
-            --gray-light: #f8f9fa;
-            --gray-medium: #6c757d;
-            --success-green: #198754;
-            --warning-orange: #fd7e14;
-            --danger-red: #dc3545;
+            --matrix-primary: #00ff41;
+            --matrix-secondary: #00cc33;
+            --matrix-accent: #39ff14;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #000000;
+            --gray-800: #0d1117;
+            --gray-700: #161b22;
+            --text-gray: #7d8590;
+            --success-green: #238636;
+            --warning-orange: #da8548;
+            --danger-red: #da3633;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--gray-light);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark-bg);
+            color: #ffffff;
+            overflow-x: hidden;
         }
         
-        .sidebar {
-            background: var(--primary-black);
-            color: var(--primary-white);
-            min-height: 100vh;
+        /* Matrix background effect */
+        body::before {
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
-            width: 250px;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(0, 255, 65, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0, 204, 51, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #0d1117 100%);
+            z-index: -1;
+            animation: matrixPulse 10s ease-in-out infinite alternate;
+        }
+        
+        @keyframes matrixPulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--darker-bg);
+            border-right: 1px solid var(--gray-700);
+            min-height: 100vh;
+            position: fixed;
+            width: 280px;
             z-index: 1000;
-            overflow-y: auto;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0, 255, 65, 0.1);
         }
         
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 12px 20px;
-            border-radius: 0;
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid var(--gray-700);
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--gray-800) 100%);
+        }
+        
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            margin: 5px 15px;
+        }
+        
+        .nav-link {
+            color: var(--text-gray);
+            padding: 15px 20px;
+            border-radius: 12px;
             transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            border: 1px solid transparent;
         }
         
-        .sidebar .nav-link:hover {
-            color: var(--primary-white);
-            background: rgba(255,255,255,0.1);
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--matrix-primary);
+            border-color: rgba(0, 255, 65, 0.3);
+            transform: translateX(5px);
         }
         
-        .sidebar .nav-link.active {
-            color: var(--primary-white);
-            background: rgba(255,255,255,0.2);
+        .nav-link i {
+            margin-right: 12px;
+            width: 20px;
+            font-size: 1.1rem;
         }
         
+        /* Main Content */
         .main-content {
-            margin-left: 250px;
-            padding: 20px;
+            margin-left: 280px;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: var(--darker-bg);
+            border-bottom: 1px solid var(--gray-700);
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .welcome-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffffff 0%, var(--matrix-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .content-area {
+            padding: 40px 30px;
         }
         
         .dashboard-card {
-            background: var(--primary-white);
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            background: var(--gray-800);
+            border: 1px solid var(--gray-700);
+            border-radius: 20px;
+            padding: 30px;
+            height: 100%;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--matrix-primary) 0%, var(--matrix-accent) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .dashboard-card:hover::before {
+            opacity: 1;
         }
         
         .dashboard-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 255, 65, 0.15);
+            border-color: rgba(0, 255, 65, 0.3);
         }
         
-        .stats-card {
-            background: linear-gradient(135deg, var(--primary-black), #333);
-            color: var(--primary-white);
-            border-radius: 10px;
-            padding: 1.5rem;
+        .stat-card {
+            background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-700) 100%);
+            border: 1px solid var(--gray-700);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--matrix-primary);
+        }
+        
+        .stat-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-accent) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 255, 65, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .stat-label {
+            color: var(--text-gray);
+            font-weight: 600;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 10;
         }
         
         .api-key-card {
-            background: var(--primary-white);
-            border: 2px solid var(--gray-light);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
+            background: var(--darker-bg);
+            border: 1px solid var(--gray-700);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
+            position: relative;
         }
         
         .api-key-card:hover {
-            border-color: var(--primary-black);
+            border-color: var(--matrix-primary);
+            transform: translateX(5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 65, 0.1);
         }
         
-        .btn-custom {
-            border-radius: 8px;
+        .api-key-header {
+            display: flex;
+            justify-content: between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+        
+        .api-key-title {
+            color: var(--matrix-primary);
+            font-size: 1.2rem;
             font-weight: 600;
-            padding: 8px 20px;
+            margin-bottom: 5px;
+        }
+        
+        .api-key-display {
+            background: var(--gray-800);
+            border: 1px solid var(--gray-700);
+            border-radius: 12px;
+            padding: 15px 20px;
+            font-family: 'SF Mono', 'Monaco', monospace;
+            font-size: 14px;
+            color: var(--matrix-primary);
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--matrix-primary);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--darker-bg);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
         
-        .btn-black {
-            background: var(--primary-black);
-            color: var(--primary-white);
-            border: 2px solid var(--primary-black);
+        .copy-btn:hover {
+            background: var(--matrix-accent);
+            transform: translateY(-50%) scale(1.05);
         }
         
-        .btn-black:hover {
-            background: var(--primary-white);
-            color: var(--primary-black);
+        .btn-matrix-primary {
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-accent) 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            color: var(--darker-bg);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
         }
         
-        .code-block {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
+        .btn-matrix-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 255, 65, 0.4);
+            color: var(--darker-bg);
         }
         
         .usage-progress {
-            height: 10px;
-            border-radius: 5px;
+            height: 12px;
+            background: var(--gray-700);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 15px 0;
+            position: relative;
         }
         
-        .header-section {
-            background: var(--primary-white);
-            border-bottom: 1px solid #dee2e6;
-            padding: 20px 0;
-            margin: -20px -20px 20px -20px;
+        .usage-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--matrix-primary) 0%, var(--matrix-accent) 50%, var(--warning-orange) 80%, var(--danger-red) 100%);
+            border-radius: 6px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .usage-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .dropdown-menu {
+            background: var(--gray-800);
+            border: 1px solid var(--gray-700);
+            border-radius: 12px;
+            padding: 10px;
+        }
+        
+        .dropdown-item {
+            color: var(--text-gray);
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--matrix-primary);
+        }
+        
+        .badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .badge.bg-success {
+            background: var(--matrix-primary) !important;
+            color: var(--darker-bg);
+        }
+        
+        /* Quick Start Guide */
+        .quick-start-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-start-step:hover {
+            background: rgba(0, 255, 65, 0.05);
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-accent) 100%);
+            color: var(--darker-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        /* Code Block */
+        .code-block {
+            background: var(--darker-bg);
+            border: 1px solid var(--gray-700);
+            border-radius: 16px;
+            padding: 25px;
+            font-family: 'SF Mono', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .code-block::before {
+            content: 'JavaScript';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: var(--matrix-primary);
+            color: var(--darker-bg);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        /* Alerts */
+        .alert-success {
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--matrix-primary);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 12px;
+        }
+        
+        .alert-warning {
+            background: rgba(218, 133, 72, 0.1);
+            color: var(--warning-orange);
+            border: 1px solid rgba(218, 133, 72, 0.3);
+            border-radius: 12px;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 100%;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block !important;
+            }
+            
+            .content-area {
+                padding: 20px 15px;
+            }
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--matrix-primary);
+            font-size: 1.5rem;
         }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="p-3">
-            <h4 class="mb-0">
-                <i class="bi bi-film me-2"></i>Movie API
-            </h4>
-            <small class="text-muted">Developer Portal</small>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="bi bi-film me-2"></i>The Matrix
+            </div>
+            <div class="text-muted mt-1" style="font-size: 0.9rem;">Developer Portal</div>
         </div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" href="#dashboard">
-                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#api-keys">
-                    <i class="bi bi-key me-2"></i>API Keys
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#usage">
-                    <i class="bi bi-graph-up me-2"></i>Usage Statistics
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/docs" target="_blank">
-                    <i class="bi bi-book me-2"></i>Documentation
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/dev/logout">
-                    <i class="bi bi-box-arrow-right me-2"></i>Logout
-                </a>
-            </li>
-        </ul>
-    </nav>
+        <nav class="sidebar-nav">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/dev/dashboard">
+                        <i class="bi bi-speedometer2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#api-keys">
+                        <i class="bi bi-key-fill"></i>API Keys
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#documentation">
+                        <i class="bi bi-book"></i>Documentation
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#analytics">
+                        <i class="bi bi-graph-up-arrow"></i>Analytics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#profile">
+                        <i class="bi bi-person-circle"></i>Profile
+                    </a>
+                </li>
+                <li class="nav-item mt-3">
+                    <a class="nav-link" href="/" style="color: var(--text-gray);">
+                        <i class="bi bi-house"></i>Back to Home
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Header -->
-        <div class="header-section">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h2 class="fw-bold mb-1">Welcome back, {{ user.name }}!</h2>
-                        <p class="text-muted mb-0">Manage your API keys and monitor usage</p>
-                    </div>
-                    <div class="col-auto">
-                        <span class="badge bg-success fs-6">
-                            <i class="bi bi-check-circle me-1"></i>Verified Account
-                        </span>
-                    </div>
-                </div>
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="d-flex align-items-center">
+                <button class="mobile-menu-btn me-3" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="welcome-text">Welcome to The Matrix, {{ user.name }}! 🚀</div>
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle me-2"></i>{{ user.name }}
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#profile"><i class="bi bi-person me-2"></i>Profile</a></li>
+                    <li><a class="dropdown-item" href="#settings"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/dev/logout"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
+                </ul>
             </div>
         </div>
 
-        <!-- Success/Error Messages -->
-        {% if request.query_params.get('success') %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-2"></i>{{ request.query_params.get('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endif %}
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Success/Error Messages -->
+            {% if request.query_params.get('success') %}
+            <div class="alert alert-success mb-4">
+                <i class="bi bi-check-circle me-2"></i>{{ request.query_params.get('success') }}
+            </div>
+            {% endif %}
+            
+            {% if request.query_params.get('error') %}
+            <div class="alert alert-warning mb-4">
+                <i class="bi bi-exclamation-triangle me-2"></i>{{ request.query_params.get('error') }}
+            </div>
+            {% endif %}
 
-        {% if request.query_params.get('error') %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i>{{ request.query_params.get('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endif %}
-
-        <!-- Statistics Overview -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">Total API Keys</h6>
-                            <h3 class="fw-bold mb-0">{{ api_keys|length }}</h3>
+            <!-- Stats Overview -->
+            <div class="row mb-5">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-key-fill"></i>
                         </div>
-                        <i class="bi bi-key" style="font-size: 2rem; opacity: 0.7;"></i>
+                        <div class="stat-number">{{ api_keys|length }}</div>
+                        <div class="stat-label">Active API Keys</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <div class="stat-number">
+                            {{ usage_stats[0].total_requests if usage_stats else 0 }}
+                        </div>
+                        <div class="stat-label">Total Requests</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-speedometer"></i>
+                        </div>
+                        <div class="stat-number">
+                            {% if api_keys %}
+                                {{ "%.1f"|format((api_keys[0].usage_count / api_keys[0].monthly_limit * 100)) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </div>
+                        <div class="stat-label">Usage This Month</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <div class="stat-number">FREE</div>
+                        <div class="stat-label">Current Plan</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">Total Requests</h6>
-                            <h3 class="fw-bold mb-0">
-                                {{ usage_stats|sum(attribute='total_requests') if usage_stats else 0 }}
+
+            <!-- API Keys Section -->
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="mb-0 fw-bold">
+                                <i class="bi bi-key-fill me-2 text-success"></i>Your API Keys
                             </h3>
+                            {% if api_keys|length < 3 %}
+                            <form method="post" action="/dev/api-key/generate" style="display: inline;">
+                                <button type="submit" class="btn-matrix-primary">
+                                    <i class="bi bi-plus-circle me-2"></i>Generate New Key
+                                </button>
+                            </form>
+                            {% endif %}
                         </div>
-                        <i class="bi bi-bar-chart" style="font-size: 2rem; opacity: 0.7;"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">Account Status</h6>
-                            <h5 class="fw-bold mb-0 text-success">ACTIVE</h5>
-                        </div>
-                        <i class="bi bi-shield-check" style="font-size: 2rem; opacity: 0.7;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- API Keys Section -->
-        <div class="row">
-            <div class="col-12">
-                <div class="dashboard-card">
-                    <div class="card-header bg-white py-3">
-                        <div class="row align-items-center">
-                            <div class="col">
-                                <h5 class="fw-bold mb-0">
-                                    <i class="bi bi-key me-2"></i>Your API Keys
-                                </h5>
-                            </div>
-                            <div class="col-auto">
-                                <form method="post" action="/dev/api-key/generate" style="display: inline;">
-                                    <button type="submit" class="btn btn-black btn-custom">
-                                        <i class="bi bi-plus-circle me-2"></i>Generate New Key
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
+                        
                         {% if api_keys %}
-                            {% for stat in usage_stats %}
+                            {% for api_key in api_keys %}
                             <div class="api-key-card">
-                                <div class="row align-items-center">
+                                <div class="api-key-header">
+                                    <div>
+                                        <div class="api-key-title">Matrix Key #{{ loop.index }}</div>
+                                        <small class="text-muted">Created {{ api_key.created_at.strftime('%B %d, %Y') }}</small>
+                                    </div>
+                                    <span class="badge bg-success">{{ api_key.plan.title() }}</span>
+                                </div>
+                                
+                                <div class="api-key-display">
+                                    <span id="key-{{ api_key.id }}">{{ api_key.key[:20] }}...{{ api_key.key[-12:] }}</span>
+                                    <button class="copy-btn" onclick="copyApiKey('{{ api_key.key }}', {{ api_key.id }})">
+                                        <i class="bi bi-copy"></i> COPY
+                                    </button>
+                                </div>
+                                
+                                <div class="row">
                                     <div class="col-md-8">
-                                        <h6 class="fw-bold mb-2">
-                                            API Key #{{ loop.index }}
-                                            <span class="badge bg-{{ 'success' if stat.api_key.is_active else 'danger' }} ms-2">
-                                                {{ 'Active' if stat.api_key.is_active else 'Inactive' }}
-                                            </span>
-                                        </h6>
-                                        <div class="code-block mb-3">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <code id="api-key-{{ loop.index }}">{{ stat.api_key.key }}</code>
-                                                <button class="btn btn-sm btn-outline-secondary" 
-                                                        onclick="copyToClipboard('api-key-{{ loop.index }}')">
-                                                    <i class="bi bi-clipboard"></i>
-                                                </button>
-                                            </div>
+                                        <small class="text-muted">Monthly Usage:</small>
+                                        <div class="d-flex justify-content-between">
+                                            <span style="color: var(--matrix-primary);">{{ api_key.usage_count }}</span>
+                                            <span class="text-muted">{{ api_key.monthly_limit }}</span>
                                         </div>
-                                        <div class="row text-center">
-                                            <div class="col-4">
-                                                <small class="text-muted">Plan</small>
-                                                <div class="fw-bold text-capitalize">{{ stat.api_key.plan }}</div>
-                                            </div>
-                                            <div class="col-4">
-                                                <small class="text-muted">Usage</small>
-                                                <div class="fw-bold">{{ stat.api_key.usage_count }}/{{ stat.api_key.monthly_limit }}</div>
-                                            </div>
-                                            <div class="col-4">
-                                                <small class="text-muted">Requests</small>
-                                                <div class="fw-bold">{{ stat.total_requests }}</div>
-                                            </div>
+                                        <div class="usage-progress">
+                                            <div class="usage-bar" style="width: {{ (api_key.usage_count / api_key.monthly_limit * 100)|round(1) }}%"></div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="text-center">
-                                            <div class="mb-3">
-                                                <small class="text-muted">Usage Progress</small>
-                                                {% set usage_percent = (stat.api_key.usage_count / stat.api_key.monthly_limit * 100) %}
-                                                <div class="progress usage-progress mt-2">
-                                                    <div class="progress-bar bg-{{ 'danger' if usage_percent > 80 else 'success' }}" 
-                                                         style="width: {{ usage_percent }}%"></div>
-                                                </div>
-                                                <small class="text-muted">{{ "%.1f"|format(usage_percent) }}% used</small>
-                                            </div>
-                                            <small class="text-muted d-block">
-                                                Created: {{ stat.api_key.created_at.strftime('%Y-%m-%d') }}
-                                            </small>
+                                    <div class="col-md-4 text-end">
+                                        <small class="text-muted">Status:</small>
+                                        <div class="mt-1">
+                                            {% if api_key.is_active %}
+                                                <span class="badge bg-success">ACTIVE</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">SUSPENDED</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -319,75 +692,171 @@
                             {% endfor %}
                         {% else %}
                             <div class="text-center py-5">
-                                <i class="bi bi-key" style="font-size: 4rem; color: var(--gray-medium);"></i>
-                                <h5 class="mt-3 text-muted">No API Keys Yet</h5>
-                                <p class="text-muted">Generate your first API key to start using the Movie API</p>
+                                <div class="stat-icon mx-auto mb-4">
+                                    <i class="bi bi-key-fill"></i>
+                                </div>
+                                <h4 class="mb-3">No API Keys Yet</h4>
+                                <p class="text-muted mb-4">Enter The Matrix by generating your first API key</p>
                                 <form method="post" action="/dev/api-key/generate" style="display: inline;">
-                                    <button type="submit" class="btn btn-black btn-custom">
-                                        <i class="bi bi-plus-circle me-2"></i>Generate Your First API Key
+                                    <button type="submit" class="btn-matrix-primary">
+                                        <i class="bi bi-plus-circle me-2"></i>Generate Matrix Key
                                     </button>
                                 </form>
                             </div>
                         {% endif %}
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Quick Start Guide -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="dashboard-card">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="fw-bold mb-0">
-                            <i class="bi bi-rocket-takeoff me-2"></i>Quick Start Guide
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6 class="fw-bold">1. Use your API key in requests:</h6>
-                                <div class="code-block">
-                                    <code>curl -H "X-API-KEY: YOUR_API_KEY" \<br>
-                                    &nbsp;&nbsp;&nbsp;&nbsp; {{ request.url.scheme }}://{{ request.url.netloc }}/movies</code>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="fw-bold">2. Search for movies:</h6>
-                                <div class="code-block">
-                                    <code>curl -H "X-API-KEY: YOUR_API_KEY" \<br>
-                                    &nbsp;&nbsp;&nbsp;&nbsp; "{{ request.url.scheme }}://{{ request.url.netloc }}/search?title=batman"</code>
-                                </div>
+                <!-- Quick Start Guide -->
+                <div class="col-lg-4 mb-4">
+                    <div class="dashboard-card">
+                        <h4 class="mb-4 fw-bold">
+                            <i class="bi bi-rocket-takeoff me-2 text-success"></i>Quick Start Guide
+                        </h4>
+                        
+                        <div class="quick-start-step">
+                            <div class="step-number">1</div>
+                            <div>
+                                <div class="fw-semibold">Generate API Key</div>
+                                <small class="text-muted">Create your Matrix access key</small>
+                                {% if api_keys %}
+                                    <i class="bi bi-check-circle-fill text-success ms-2"></i>
+                                {% endif %}
                             </div>
                         </div>
-                        <div class="text-center mt-4">
-                            <a href="/docs" target="_blank" class="btn btn-outline-dark btn-custom">
-                                <i class="bi bi-book me-2"></i>View Full Documentation
-                            </a>
+                        
+                        <div class="quick-start-step">
+                            <div class="step-number">2</div>
+                            <div>
+                                <div class="fw-semibold">Make First Request</div>
+                                <small class="text-muted">Connect to The Matrix API</small>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-start-step">
+                            <div class="step-number">3</div>
+                            <div>
+                                <div class="fw-semibold">Build Your App</div>
+                                <small class="text-muted">Create something amazing</small>
+                            </div>
+                        </div>
+                        
+                        <a href="#documentation" class="btn btn-outline-primary w-100 mt-3" style="border-color: var(--matrix-primary); color: var(--matrix-primary);">
+                            <i class="bi bi-book me-2"></i>View Documentation
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Example -->
+            {% if api_keys %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="dashboard-card">
+                        <h4 class="mb-4 fw-bold">
+                            <i class="bi bi-code-slash me-2 text-success"></i>Matrix Integration Example
+                        </h4>
+                        
+                        <div class="code-block">
+                            <div style="color: #7d8590;">// Connect to The Matrix API</div>
+                            <div><span style="color: #00ff41;">const</span> <span style="color: #fff;">response</span> = <span style="color: #00ff41;">await</span> <span style="color: #fff;">fetch</span>(<span style="color: #39ff14;">'{{ request.url.scheme }}://{{ request.url.netloc }}/movies'</span>, {</div>
+                            <div>&nbsp;&nbsp;<span style="color: #fff;">method</span>: <span style="color: #39ff14;">'GET'</span>,</div>
+                            <div>&nbsp;&nbsp;<span style="color: #fff;">headers</span>: {</div>
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #39ff14;">'X-API-KEY'</span>: <span style="color: #39ff14;">'{{ api_keys[0].key }}'</span>,</div>
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #39ff14;">'Content-Type'</span>: <span style="color: #39ff14;">'application/json'</span></div>
+                            <div>&nbsp;&nbsp;}</div>
+                            <div>});</div>
+                            <br>
+                            <div><span style="color: #00ff41;">const</span> <span style="color: #fff;">data</span> = <span style="color: #00ff41;">await</span> <span style="color: #fff;">response</span>.<span style="color: #fff;">json</span>();</div>
+                            <div><span style="color: #fff;">console</span>.<span style="color: #fff;">log</span>(<span style="color: #39ff14;">'Welcome to The Matrix:'</span>, <span style="color: #fff;">data</span>.<span style="color: #fff;">movies</span>);</div>
+                            <div style="color: #7d8590;">// 🚀 You're now connected to The Matrix!</div>
                         </div>
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            navigator.clipboard.writeText(element.textContent).then(() => {
-                // Show success feedback
-                const button = event.target.closest('button');
-                const originalIcon = button.innerHTML;
-                button.innerHTML = '<i class="bi bi-check"></i>';
-                button.classList.add('btn-success');
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+        
+        function copyApiKey(key, keyId) {
+            navigator.clipboard.writeText(key).then(function() {
+                const btn = event.target.closest('.copy-btn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check"></i> COPIED';
+                btn.style.background = '#238636';
                 
                 setTimeout(() => {
-                    button.innerHTML = originalIcon;
-                    button.classList.remove('btn-success');
+                    btn.innerHTML = originalHtml;
+                    btn.style.background = '#00ff41';
                 }, 2000);
             });
         }
+        
+        // Close sidebar on mobile when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !menuBtn.contains(e.target) &&
+                sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+            }
+        });
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Add pulse effect to active stat cards
+        setInterval(() => {
+            const statCards = document.querySelectorAll('.stat-card');
+            const randomCard = statCards[Math.floor(Math.random() * statCards.length)];
+            randomCard.style.animation = 'none';
+            setTimeout(() => {
+                randomCard.style.animation = 'pulse 0.5s ease-in-out';
+            }, 10);
+        }, 5000);
+        
+        // Matrix-style typing effect for numbers
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.stat-number');
+            numbers.forEach(number => {
+                const finalValue = number.textContent;
+                if (!isNaN(parseInt(finalValue))) {
+                    const target = parseInt(finalValue);
+                    let current = 0;
+                    const increment = target / 30;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        number.textContent = Math.floor(current);
+                    }, 50);
+                }
+            });
+        }
+        
+        // Animate numbers on page load
+        window.addEventListener('load', animateNumbers);
     </script>
 </body>
 </html>

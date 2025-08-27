@@ -344,3 +344,120 @@ async def dev_logout():
     response = RedirectResponse(url="/")
     response.delete_cookie("dev_session")
     return response
+
+@router.get("/dev/forgot-password", response_class=HTMLResponse)
+async def forgot_password_page(request: Request):
+    """Forgot password page."""
+    return templates.TemplateResponse("dev/forgot_password.html", {"request": request})
+
+@router.post("/dev/forgot-password")
+async def forgot_password(
+    request: Request,
+    email: str = Form(...),
+    db: Session = Depends(get_database)
+):
+    """Process forgot password request."""
+    try:
+        user = db.query(User).filter(User.email == email, User.is_admin == False).first()
+        
+        if user:
+            # Generate reset token
+            reset_token = generate_otp()
+            verification = EmailVerification(
+                user_id=user.id,
+                token=reset_token,
+                expires_at=datetime.now() + timedelta(minutes=30)
+            )
+            db.add(verification)
+            db.commit()
+            
+            # Send reset email
+            from auth.email import send_password_reset_email
+            send_password_reset_email(email, reset_token, user.name)
+        
+        # Always show success message for security
+        return templates.TemplateResponse("dev/forgot_password.html", {
+            "request": request,
+            "success": "If your email exists in our system, you'll receive reset instructions."
+        })
+        
+    except Exception as e:
+        return templates.TemplateResponse("dev/forgot_password.html", {
+            "request": request,
+            "error": f"An error occurred: {str(e)}"
+        })
+
+@router.get("/dev/reset-password", response_class=HTMLResponse)
+async def reset_password_page(request: Request, email: str = None, token: str = None):
+    """Reset password page."""
+    return templates.TemplateResponse("dev/reset_password.html", {
+        "request": request,
+        "email": email,
+        "token": token
+    })
+
+@router.post("/dev/reset-password")
+async def reset_password(
+    request: Request,
+    email: str = Form(...),
+    token: str = Form(...),
+    password: str = Form(...),
+    confirm_password: str = Form(...),
+    db: Session = Depends(get_database)
+):
+    """Process password reset."""
+    try:
+        if password != confirm_password:
+            return templates.TemplateResponse("dev/reset_password.html", {
+                "request": request,
+                "email": email,
+                "token": token,
+                "error": "Passwords do not match"
+            })
+        
+        if len(password) < 8:
+            return templates.TemplateResponse("dev/reset_password.html", {
+                "request": request,
+                "email": email,
+                "token": token,
+                "error": "Password must be at least 8 characters long"
+            })
+        
+        # Find user and verify token
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            return templates.TemplateResponse("dev/reset_password.html", {
+                "request": request,
+                "error": "Invalid reset request"
+            })
+        
+        verification = db.query(EmailVerification).filter(
+            EmailVerification.user_id == user.id,
+            EmailVerification.token == token,
+            EmailVerification.expires_at > datetime.now(),
+            EmailVerification.is_used == False
+        ).first()
+        
+        if not verification:
+            return templates.TemplateResponse("dev/reset_password.html", {
+                "request": request,
+                "error": "Invalid or expired reset token"
+            })
+        
+        # Update password
+        user.hashed_password = get_password_hash(password)
+        verification.is_used = True
+        db.commit()
+        
+        return templates.TemplateResponse("dev/reset_password.html", {
+            "request": request,
+            "success": "Password reset successfully! You can now sign in with your new password."
+        })
+        
+    except Exception as e:
+        return templates.TemplateResponse("dev/reset_password.html", {
+            "request": request,
+            "email": email,
+            "token": token,
+            "error": f"Reset failed: {str(e)}"
+        })

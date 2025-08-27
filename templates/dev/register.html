@@ -4,177 +4,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer Registration - Movie API</title>
+    <title>Enter The Matrix - Developer Registration</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         :root {
-            --primary-black: #000000;
-            --primary-white: #ffffff;
-            --gray-light: #f8f9fa;
-            --gray-medium: #6c757d;
+            --matrix-primary: #6366f1;
+            --matrix-secondary: #8b5cf6;
+            --matrix-accent: #00ff41;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #000000;
+            --gray-800: #1a1a2e;
+            --gray-700: #2a2a3a;
+            --text-gray: #a0a0a0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--gray-light) 0%, var(--primary-white) 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark-bg);
+            color: #ffffff;
             min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Matrix background effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0, 255, 65, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #1a1a2e 100%);
+            z-index: -1;
+            animation: matrixPulse 8s ease-in-out infinite alternate;
+        }
+        
+        @keyframes matrixPulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        
+        .registration-container {
+            max-width: 450px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-secondary) 100%);
+            padding: 40px 30px;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .form-section {
+            background: var(--gray-800);
+            padding: 40px 30px;
+            border-radius: 0 0 20px 20px;
+            border: 1px solid var(--gray-700);
+            border-top: none;
+        }
+        
+        .back-link {
+            color: var(--matrix-accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-link:hover {
+            color: var(--matrix-primary);
+            transform: translateX(-5px);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            color: #ffffff;
+            font-weight: 600;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            padding: 20px 0;
-        }
-        
-        .registration-card {
-            background: var(--primary-white);
-            border: 2px solid var(--primary-black);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 450px;
-        }
-        
-        .card-header {
-            background: var(--primary-black) !important;
-            border-bottom: 2px solid var(--primary-black);
-            border-radius: 13px 13px 0 0 !important;
         }
         
         .form-control {
-            border: 2px solid var(--gray-medium);
-            border-radius: 8px;
-            padding: 12px 15px;
+            background: var(--darker-bg);
+            border: 1px solid var(--gray-700);
+            border-radius: 12px;
+            padding: 15px 20px;
+            color: #ffffff;
+            font-size: 16px;
             transition: all 0.3s ease;
         }
         
         .form-control:focus {
-            border-color: var(--primary-black);
-            box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.1);
+            background: var(--darker-bg);
+            border-color: var(--matrix-primary);
+            color: #ffffff;
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
         }
         
-        .btn-register {
-            background: var(--primary-black);
-            color: var(--primary-white);
-            border: 2px solid var(--primary-black);
-            border-radius: 8px;
-            padding: 12px;
+        .form-control::placeholder {
+            color: var(--text-gray);
+        }
+        
+        .btn-matrix-primary {
+            background: linear-gradient(135deg, var(--matrix-primary) 0%, var(--matrix-secondary) 100%);
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
             font-weight: 600;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            color: white;
             width: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         
-        .btn-register:hover {
-            background: var(--primary-white);
-            color: var(--primary-black);
+        .btn-matrix-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-matrix-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-matrix-primary:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+            color: white;
         }
         
-        .form-label {
-            font-weight: 600;
-            color: var(--primary-black);
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 25px;
         }
         
-        .text-link {
-            color: var(--primary-black);
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.1);
+            color: #ff6b6b;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+        
+        .signin-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid var(--gray-700);
+        }
+        
+        .signin-link a {
+            color: var(--matrix-primary);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.3s ease;
         }
         
-        .text-link:hover {
-            color: var(--gray-medium);
+        .signin-link a:hover {
+            color: var(--matrix-accent);
+        }
+        
+        .terms-text {
+            font-size: 14px;
+            color: var(--text-gray);
+            text-align: center;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+        
+        .terms-text a {
+            color: var(--matrix-primary);
+            text-decoration: none;
+        }
+        
+        .terms-text a:hover {
             text-decoration: underline;
         }
         
-        .password-requirements {
-            font-size: 0.9rem;
-            color: var(--gray-medium);
+        /* Password strength indicator */
+        .password-strength {
+            height: 4px;
+            background: var(--gray-700);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
         }
         
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff4444, #ffaa00, #00ff41);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Floating animation for form elements */
+        .form-group {
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+        
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
-            body {
-                align-items: flex-start;
-                padding: 10px 0;
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .registration-container {
+                margin: 10px;
+                padding: 10px;
+            }
+            
+            .header-section,
+            .form-section {
+                padding: 30px 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
-                <div class="registration-card">
-                    <div class="card-header text-white text-center py-4">
-                        <h3 class="mb-0">
-                            <i class="bi bi-person-plus me-2"></i>Developer Registration
-                        </h3>
-                        <p class="mb-0 mt-2 opacity-75">Join thousands of developers</p>
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="registration-container">
+            <div class="header-section">
+                <div class="header-content">
+                    <div class="logo">🎬</div>
+                    <h2 class="mb-0 fw-bold">Enter The Matrix</h2>
+                    <p class="mb-0 opacity-90">Join the ultimate movie API platform</p>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <a href="/" class="back-link">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Home
+                </a>
+                
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+                {% endif %}
+                
+                <form method="post" action="/dev/register" id="registerForm">
+                    <div class="form-group">
+                        <label for="name" class="form-label">
+                            <i class="bi bi-person me-2"></i>Full Name
+                        </label>
+                        <input type="text" class="form-control" id="name" name="name" required 
+                               placeholder="Enter your full name" autocomplete="name">
                     </div>
-                    <div class="card-body p-4">
-                        {% if error %}
-                        <div class="alert alert-danger" role="alert">
-                            <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
-                        </div>
-                        {% endif %}
-                        
-                        <form method="post" action="/dev/register" id="registerForm">
-                            <div class="mb-3">
-                                <label for="name" class="form-label">
-                                    <i class="bi bi-person me-2"></i>Full Name
-                                </label>
-                                <input type="text" class="form-control" id="name" name="name" required 
-                                       placeholder="Enter your full name">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="email" class="form-label">
-                                    <i class="bi bi-envelope me-2"></i>Email Address
-                                </label>
-                                <input type="email" class="form-control" id="email" name="email" required 
-                                       placeholder="your.email@gmail.com">
-                                <div class="password-requirements mt-1">
-                                    Use Gmail, Yahoo, or Outlook email
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="password" class="form-label">
-                                    <i class="bi bi-lock me-2"></i>Password
-                                </label>
-                                <input type="password" class="form-control" id="password" name="password" required 
-                                       placeholder="Create a strong password">
-                                <div class="password-requirements mt-1">
-                                    Minimum 8 characters required
-                                </div>
-                            </div>
-                            
-                            <div class="mb-4">
-                                <label for="confirm_password" class="form-label">
-                                    <i class="bi bi-lock-fill me-2"></i>Confirm Password
-                                </label>
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required 
-                                       placeholder="Confirm your password">
-                            </div>
-                            
-                            <button type="submit" class="btn btn-register">
-                                <i class="bi bi-rocket-takeoff me-2"></i>Create Account
-                            </button>
-                        </form>
-                        
-                        <div class="text-center mt-4">
-                            <p class="mb-0">
-                                Already have an account? 
-                                <a href="/dev/login" class="text-link">Sign in here</a>
-                            </p>
-                            <p class="mt-2 mb-0">
-                                <a href="/" class="text-link">
-                                    <i class="bi bi-arrow-left me-1"></i>Back to Home
-                                </a>
-                            </p>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            <i class="bi bi-envelope me-2"></i>Email Address
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" required 
+                               placeholder="Enter your email address" autocomplete="email">
+                        <small class="text-muted mt-1">We support Gmail, Yahoo, and Outlook</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            <i class="bi bi-lock me-2"></i>Password
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" required 
+                               placeholder="Create a strong password" autocomplete="new-password">
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="strengthBar"></div>
                         </div>
                     </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm_password" class="form-label">
+                            <i class="bi bi-shield-check me-2"></i>Confirm Password
+                        </label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required 
+                               placeholder="Confirm your password" autocomplete="new-password">
+                    </div>
+                    
+                    <button type="submit" class="btn-matrix-primary">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Enter The Matrix
+                    </button>
+                    
+                    <div class="terms-text">
+                        By creating an account, you agree to our 
+                        <a href="#">Terms of Service</a> and 
+                        <a href="#">Privacy Policy</a>
+                    </div>
+                </form>
+                
+                <div class="signin-link">
+                    Already have an account? <a href="/dev/login">Sign In</a>
                 </div>
             </div>
         </div>
@@ -182,7 +366,23 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Password confirmation validation
+        // Password strength indicator
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 8) strength += 25;
+            if (/[a-z]/.test(password)) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password)) strength += 25;
+            
+            strengthBar.style.width = strength + '%';
+        });
+        
+        // Form validation
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm_password').value;
@@ -190,13 +390,75 @@
             if (password !== confirmPassword) {
                 e.preventDefault();
                 alert('Passwords do not match!');
-                return false;
+                return;
             }
             
             if (password.length < 8) {
                 e.preventDefault();
                 alert('Password must be at least 8 characters long!');
-                return false;
+                return;
+            }
+        });
+        
+        // Add matrix rain effect
+        function createMatrixRain() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.style.position = 'fixed';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.zIndex = '-2';
+            canvas.style.opacity = '0.1';
+            
+            document.body.appendChild(canvas);
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+            const matrixArray = matrix.split("");
+            
+            const fontSize = 10;
+            const columns = canvas.width / fontSize;
+            
+            const drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = 1;
+            }
+            
+            function draw() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#00ff41';
+                ctx.font = fontSize + 'px arial';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            
+            setInterval(draw, 35);
+        }
+        
+        // Initialize matrix rain effect
+        createMatrixRain();
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const canvas = document.querySelector('canvas');
+            if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
             }
         });
     </script>

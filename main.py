@@ -39,8 +39,8 @@ SMTP_PORT = int(os.environ.get("SMTP_PORT", 587))
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Movie API",
-    description="A comprehensive movie database API with user authentication and API key management",
+    title="The Matrix - Movie API",
+    description="Enter The Matrix - The ultimate movie database API platform for developers. Access 10,000+ movies with enterprise-grade security and lightning-fast performance.",
     version="1.0.0"
 )
 
@@ -79,11 +79,31 @@ async def startup_event():
         print(f"Failed to create database tables: {e}")
         raise
 
+# Mount static files for React app (only if dist directory exists)
+import os
+if os.path.exists("dist"):
+    app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
+    app.mount("/static", StaticFiles(directory="dist"), name="static")
+
 @app.get("/", response_class=HTMLResponse)
-async def homepage(request: Request):
-    """Homepage with landing page."""
-    templates = Jinja2Templates(directory="templates")
-    return templates.TemplateResponse("index.html", {"request": request})
+async def homepage():
+    """Serve React app or fallback message."""
+    if os.path.exists("dist/index.html"):
+        with open("dist/index.html", "r") as f:
+            return HTMLResponse(content=f.read(), status_code=200)
+    else:
+        return HTMLResponse(
+            content="""
+            <html>
+                <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+                    <h1>The Matrix - Movie API</h1>
+                    <p>Frontend is building... Please run 'npm run build' to create the React app.</p>
+                    <p>API documentation available at <a href="/docs">/docs</a></p>
+                </body>
+            </html>
+            """,
+            status_code=200
+        )
 
 
 
